@@ -1,85 +1,68 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+  <div class="app-container">
+    <nav class="sidebar">
+      <h3>Navigation</h3>
+      <button class="nav-button" @click="showProjectList">Project List</button>
+      <!-- You can add more buttons for additional navigation -->
+    </nav>
+    <div class="main-content">
+      <ProjectList v-if="currentComponent === 'ProjectList'" />
+      <!-- Add more components conditionally here -->
     </div>
-  </header>
-
-  <RouterView />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<script>
+import ProjectList from './components/ProjectList.vue'; // Adjusted component import
+
+export default {
+  name: 'App',
+  components: {
+    ProjectList,
+  },
+  data() {
+    return {
+      currentComponent: null, // To track the currently displayed component
+    };
+  },
+  methods: {
+    showProjectList() {
+      this.currentComponent = 'ProjectList'; // Set the current component to ProjectList
+    },
+  },
+};
+</script>
+
+<style>
+.app-container {
+  display: flex; /* Use flex to create a sidebar and main content layout */
+  height: 100vh; /* Full height of the viewport */
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.sidebar {
+  flex: 0 0 200px; /* Fixed width for the sidebar */
+  background-color: #f8f9fa; /* Light background for the sidebar */
+  padding: 16px;
+  border-right: 1px solid #ddd; /* Right border for separation */
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.nav-button {
+  width: 100%; /* Make the button full width */
+  padding: 10px; /* Add padding for better appearance */
+  margin-bottom: 8px; /* Space between buttons */
+  background-color: #007bff; /* Primary color for the button */
+  color: white; /* Text color */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Change cursor to indicate clickable */
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.nav-button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.main-content {
+  flex: 1; /* Take the remaining space */
+  padding: 16px;
 }
 </style>
