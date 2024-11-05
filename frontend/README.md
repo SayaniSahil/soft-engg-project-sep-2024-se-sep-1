@@ -1,11 +1,8 @@
-# [Vue Light Bootstrap Dashboard](http://vuejs.creative-tim.com/vue-light-bootstrap-dashboard) [![version][version-badge]][changelog] [![license][license-badge]][license]
+# Software Engineering Project - Team 1
 
-> Admin dashboard based on light bootstrap dashboard UI template + vue-router
+>  dashboard based on light bootstrap dashboard UI  + vue-router
 
-This project is a vue version of [Light bootstrap dashboard](https://www.creative-tim.com/product/light-bootstrap-dashboard)
-designed for vue js. The dashboard includes Bootstrap 4, vue-router, chartist, google-maps and several other plugins/components.
-
-Check the [Live Demo here](http://vuejs.creative-tim.com/vue-light-bootstrap-dashboard).
+The dashboard includes Bootstrap 4, vue-router, chartist, google-maps and several other plugins/components.
 
 ![](public/Dashboard.PNG)
 
@@ -22,7 +19,7 @@ The repo uses [vue-cli](https://github.com/vuejs/vue-cli) scaffolding which take
 
 ## Deploy
 
-:rocket: You can deploy your own version of the template to Genezio with one click:
+:rocket:deploy[future]:
 
 [![Deploy to Genezio](https://raw.githubusercontent.com/Genez-io/graphics/main/svg/deploy-button.svg)](https://app.genez.io/start/deploy?repository=https://github.com/creativetimofficial/vue-light-bootstrap-dashboard&utm_source=github&utm_medium=referral&utm_campaign=github-creativetim&utm_term=deploy-project&utm_content=button-head)
 
@@ -53,7 +50,7 @@ The repo uses [vue-cli](https://github.com/vuejs/vue-cli) scaffolding which take
 ## :clipboard: Contribution guide
 
 - `npm install` or `yarn install`
-- Please don't use jQuery or jQuery based plugins since there are many pure Vue alternatives
+
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
