@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import StatisticsCard from '../components/StatisticsCard.vue'
+import Statistics from '../components/Statistics.vue'
 
 const stats = ref({
   totalProjects: 15,
@@ -15,15 +16,19 @@ const stats = ref({
       <!-- Sidebar -->
       <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
+          <div class="sidebar-header d-flex align-items-center">
+            <i class="bi bi-house-door-fill me-2"></i> <!-- Example icon, use any icon you like -->
+            <span class="app-name">My Application</span>
+          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
-              <router-link class="nav-link" to="/admin">Statistics</router-link>
+              <router-link class="nav-link" to="/admin" active-class="active-link">Statistics</router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" to="/admin/projects">Projects</router-link>
+              <router-link class="nav-link" to="/admin/projects" active-class="active-link">Projects</router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" to="/admin/stats">Project Stats</router-link>
+              <router-link class="nav-link" to="/admin/stats" active-class="active-link">Project Stats</router-link>
             </li>
           </ul>
         </div>
@@ -47,6 +52,7 @@ const stats = ref({
             <StatisticsCard title="Completion Rate" :value="stats.completionRate" type="warning" />
           </div>
         </div>
+        <Statistics role="Admin"/>
       </main>
     </div>
   </div>

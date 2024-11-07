@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import StatisticsCard from '../components/StatisticsCard.vue'
-import Statistics from '../components/Statistics.vue'
 import MilestoneList from '../components/MilestoneList.vue'
 
+// Mock Data
 const students = ref([
   { id: 1, name: 'Student 1', progress: 75 },
   { id: 2, name: 'Student 2', progress: 45 },
@@ -22,6 +22,7 @@ const milestones = ref([
 <template>
   <div class="container-fluid">
     <div class="row">
+      <!-- Sidebar -->
       <!-- Sidebar -->
       <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
@@ -49,30 +50,11 @@ const milestones = ref([
       <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="pt-3 pb-2 mb-3 border-bottom">
-          <h1>Instructor Dashboard</h1>
+          <h1>Milestones</h1>
         </div>
 
-        <!-- Statistics -->
-        <div class="row mb-4">
-          <div class="col-md-4">
-            <StatisticsCard title="Total Students" :value="students.length" type="primary" />
-          </div>
-          <div class="col-md-4">
-            <StatisticsCard 
-              title="Average Progress" 
-              :value="`${Math.round(students.reduce((acc, s) => acc + s.progress, 0) / students.length)}%`"
-              type="success"
-            />
-          </div>
-          <div class="col-md-4">
-            <StatisticsCard 
-              title="Active Milestones" 
-              :value="milestones.filter(m => m.status === 'pending').length"
-              type="warning"
-            />
-          </div>
-        </div>
-        <Statistics role="Instructor" :project_id="1"/>
+        <!-- Milestones -->
+        <MilestoneList :milestones="milestones" />
       </main>
     </div>
   </div>

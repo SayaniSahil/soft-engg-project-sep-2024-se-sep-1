@@ -57,10 +57,13 @@ const logout = () => {
 
 <style scoped>
 .debug-nav {
-  z-index: 1020;
+  z-index: 900;
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
+}
+.navbar{
+  z-index: 1000;
 }
 </style>

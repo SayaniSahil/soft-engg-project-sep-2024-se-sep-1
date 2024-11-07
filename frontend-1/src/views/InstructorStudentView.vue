@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import StatisticsCard from '../components/StatisticsCard.vue'
 import Statistics from '../components/Statistics.vue'
 import MilestoneList from '../components/MilestoneList.vue'
+import ProgressComponent from '../components/ProgressComponent.vue'
+import StudentList from '../components/StudentList.vue'
 
 const students = ref([
   { id: 1, name: 'Student 1', progress: 75 },
@@ -49,30 +51,20 @@ const milestones = ref([
       <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="pt-3 pb-2 mb-3 border-bottom">
-          <h1>Instructor Dashboard</h1>
+          <h1>Student List</h1>
         </div>
 
-        <!-- Statistics -->
+        <ProgrssComponent />
         <div class="row mb-4">
-          <div class="col-md-4">
-            <StatisticsCard title="Total Students" :value="students.length" type="primary" />
-          </div>
-          <div class="col-md-4">
-            <StatisticsCard 
-              title="Average Progress" 
-              :value="`${Math.round(students.reduce((acc, s) => acc + s.progress, 0) / students.length)}%`"
-              type="success"
-            />
-          </div>
-          <div class="col-md-4">
-            <StatisticsCard 
-              title="Active Milestones" 
-              :value="milestones.filter(m => m.status === 'pending').length"
-              type="warning"
-            />
-          </div>
+            <div class="col-md-4">
+                <StudentList />
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-7" id="statsPanel">
+                <ProgressComponent />
+            </div>
         </div>
-        <Statistics role="Instructor" :project_id="1"/>
+
       </main>
     </div>
   </div>

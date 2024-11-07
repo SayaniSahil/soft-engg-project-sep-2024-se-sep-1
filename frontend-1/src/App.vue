@@ -10,12 +10,6 @@ import NavBar from './components/NavBar.vue'
 </template>
 
 <style>
-.content-wrapper {
-  padding-top: 104px; /* Account for both navbars */
-}
-
-/* Adjust sidebar top position to account for both navbars */
-.sidebar {
-  padding-top: 104px !important;
-}
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import './style.css';
 </style>

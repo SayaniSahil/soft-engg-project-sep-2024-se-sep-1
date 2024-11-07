@@ -27,4 +27,84 @@ body {
     background-color: #ffffff;
   }
 }
-</style>
+
+.content-wrapper {
+  padding-top: 104px; /* Account for both navbars */
+}
+
+/* Adjust sidebar top position to account for both navbars */
+.sidebar {
+  padding-top: 104px !important;
+}
+
+.unclicked{
+  background-color: #d4ebe8 !important;
+}
+
+.clicked{
+  background-color: #ddccec !important;
+}
+
+.list-group-item {
+  margin-bottom: 10px; /* Adjust the space as needed */
+}
+
+.icon-container {
+  display: flex;
+  flex-direction: column; /* Stacks items vertically */
+  gap: 1px; /* Adds space between icons vertically */
+  align-items: center; /* Optional: Center aligns the icons horizontally */
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  width: 250px; /* Adjust the width as needed */
+  background-color: #f8f9fa; /* Light background for the sidebar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1); /* Optional border on the right */
+  padding-top: 16px; /* Space at the top */
+  padding-left: 2px; /* Space on the left */
+  transition: all 0.3s ease; /* Smooth transition for any changes */
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  padding-bottom: 16px;
+}
+
+.sidebar .nav-link {
+  color: black; /* Default color for links */
+  padding: 10px 16px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+.nav-link:focus {
+  outline: none;
+}
+
+.sidebar .nav-link:hover {
+  color: #6157e8; /* Change color on hover */
+}
+
+.sidebar .nav-link.active-link {
+  color: #6157e8; /* Change color for active link */
+  background-color: rgb(220,220,252); /* Light purple background for active link */
+  border-left: 5px solid #6157e8; /* Vertical bar on the left */
+}
+
+.app-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.bi {
+  font-size: 1.5rem;
+  color: #6c757d; /* Gray color for the icon */
+}
