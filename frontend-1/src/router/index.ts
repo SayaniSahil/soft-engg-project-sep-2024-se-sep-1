@@ -8,10 +8,9 @@ import AdminProject from '../views/AdminProject.vue'
 import MilestoneDetailView from '../views/MilestoneDetailView.vue'
 import InstructorStudentView from '../views/InstructorStudentView.vue'
 import InstructorMilestoneView from '../views/InstructorMilestoneView.vue'
+import InstructorCommitHistory from '../views/InstructorCommitHistory.vue'
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
+const routes = [
     {
       path: '/',
       name: 'login',
@@ -50,7 +49,7 @@ const router = createRouter({
     {
       path: '/instructor/github',
       name: 'instructor-github',
-      component: InstructorDashboard
+      component: InstructorCommitHistory
     },
     {
       path: '/student',
@@ -62,8 +61,46 @@ const router = createRouter({
       name: 'milestone-detail',
       component: MilestoneDetailView,
       props: true
+    },
+    {
+      path: '/:pathMatch(.*)*', // Catch-all route for undefined paths
+      redirect: '/'
     }
-  ]
+]
+
+const baseUrl = '/';
+console.log('BASE_URL:', baseUrl);
+
+const router = createRouter({
+  history: createWebHistory(baseUrl),
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  const role = sessionStorage.getItem('role')
+
+  if(!role && to.name !== 'login'){
+    sessionStorage.clear()
+    next({ name: 'login' })
+  }else if(to.name === 'login' && role){
+    next({ name: role })
+  }
+  let path = to.name?.toString();
+  path = path?.split('-')[0];
+
+  if (path.includes("instructor") && role !== 'instructor') {
+    // Wrong dashboard for role
+    next({ name: role === 'student' ? 'student' : role === 'admin' ? 'admin' : 'login' })
+  } else if (path.includes("student") && role !== 'student') {
+    // Wrong dashboard for role
+    next({ name: role === 'instructor' ? 'instructor' : role === 'admin' ? 'admin' : 'login' })
+  } else if (path.includes("admin") && role !== 'admin') {
+    // Wrong dashboard for role
+    next({ name: role === 'student' ? 'student' : role === 'instructor' ? 'instructor' : 'login' })
+  } else {
+    // Continue to route
+    next()
+  }
 })
 
 export default router

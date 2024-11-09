@@ -1,24 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import StatisticsCard from '../components/StatisticsCard.vue'
-import Statistics from '../components/Statistics.vue'
-import MilestoneList from '../components/MilestoneList.vue'
-import ProgressComponent from '../components/ProgressComponent.vue'
 import StudentList from '../components/StudentList.vue'
-
-const students = ref([
-  { id: 1, name: 'Student 1', progress: 75 },
-  { id: 2, name: 'Student 2', progress: 45 },
-  { id: 3, name: 'Student 3', progress: 90 }
-])
-
-const milestones = ref([
-  { id: 1, name: 'Project Document', status: 'completed' },
-  { id: 2, name: 'Milestone 1', status: 'completed' },
-  { id: 3, name: 'Milestone 2', status: 'pending' },
-  { id: 4, name: 'Milestone 3', status: 'pending' },
-  { id: 5, name: 'Milestone 4', status: 'overdue' }
-])
 </script>
 
 <template>
@@ -27,10 +8,6 @@ const milestones = ref([
       <!-- Sidebar -->
       <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
-          <div class="sidebar-header d-flex align-items-center">
-            <i class="bi bi-house-door-fill me-2"></i> <!-- Example icon, use any icon you like -->
-            <span class="app-name">My Application</span>
-          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <router-link class="nav-link" to="/instructor" active-class="active-link">Statistics</router-link>
@@ -50,34 +27,13 @@ const milestones = ref([
 
       <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="pt-3 pb-2 mb-3 border-bottom">
+        <div class="pt-3 pb-2 mb-3 border-bottom" style="padding: 0;">
           <h1>Student List</h1>
         </div>
 
-        <ProgrssComponent />
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <StudentList />
-            </div>
-            <div class="col-md-1"></div>
-            <div class="col-md-7" id="statsPanel">
-                <ProgressComponent />
-            </div>
-        </div>
+        <StudentList/>
 
       </main>
     </div>
   </div>
 </template>
-
-<style scoped>
-.sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
-  padding: 48px 0 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-}
-</style>

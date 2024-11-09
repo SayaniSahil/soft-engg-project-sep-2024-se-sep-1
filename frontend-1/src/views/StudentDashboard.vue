@@ -1,21 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import StatisticsCard from '../components/StatisticsCard.vue'
-import MilestoneList from '../components/MilestoneList.vue'
 import ProgressComponent from '../components/ProgressComponent.vue'
 
-const studentProgress = ref(65)
 const milestones = ref([
   { id: 1, name: 'Project Document', status: 'completed' },
   { id: 2, name: 'Milestone 1', status: 'completed' },
   { id: 3, name: 'Milestone 2', status: 'pending' },
   { id: 4, name: 'Milestone 3', status: 'pending' },
   { id: 5, name: 'Milestone 4', status: 'pending' }
-])
-
-const submissions = ref([
-  { id: 1, name: 'Project Proposal', status: 'submitted', grade: 'A' },
-  { id: 2, name: 'Progress Report', status: 'pending', grade: '-' }
 ])
 </script>
 
@@ -25,10 +17,6 @@ const submissions = ref([
       <!-- Sidebar -->
       <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
-          <div class="sidebar-header d-flex align-items-center">
-            <i class="bi bi-house-door-fill me-2"></i> <!-- Example icon, use any icon you like -->
-            <span class="app-name">My Application</span>
-          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <router-link class="nav-link" to="/student" active-class="active-link">Progress</router-link>
@@ -53,15 +41,3 @@ const submissions = ref([
     </div>
   </div>
 </template>
-
-<style scoped>
-.sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
-  padding: 48px 0 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-}
-</style>

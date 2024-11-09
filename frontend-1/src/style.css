@@ -28,13 +28,70 @@ body {
   }
 }
 
-.content-wrapper {
-  padding-top: 104px; /* Account for both navbars */
+/*
+    Login Page Styling
+*/
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('./assets/cool-background.png');
+  background-size: cover; /* Cover the entire background */
+  filter: blur(0px); /* Blur effect for background */
+  z-index: 0; /* Make sure the background stays behind the login form */
 }
+
+.login-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.3); /* Slightly translucent white background */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  z-index: 1; /* Make sure the login form stays on top */
+}
+
+/*
+    Navbar styling
+*/
+
+.content-wrapper {
+  padding-top: 80px; /* Account for both navbars */
+}
+
+.login-wrapper{
+  padding-top: 0px;
+}
+
+.hexagon-logo {
+  width: 52px; /* Adjust size as needed */
+  height: 52px; /* Adjust based on width to maintain hexagonal shape */
+  background-color: #f0f0f0; /* Background color of the hexagon */
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hexagon-logo .logo {
+  width: 100%; /* Adjust size relative to the hexagon */
+  height: auto;
+}
+
+.navbar{
+  z-index: 1000;
+}
+
+/*
+    Sidebar styling
+*/
 
 /* Adjust sidebar top position to account for both navbars */
 .sidebar {
-  padding-top: 104px !important;
+  padding-top: 65px !important;
 }
 
 .unclicked{
@@ -85,6 +142,20 @@ body {
   font-weight: 500;
 }
 
+.sidebar-header{
+  margin-bottom: 50px;
+}
+
+.pacifico-regular {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sidebar .nav-item{
+  margin-bottom: 10px;
+}
+
 .nav-link:focus {
   outline: none;
 }
@@ -107,4 +178,190 @@ body {
 .bi {
   font-size: 1.5rem;
   color: #6c757d; /* Gray color for the icon */
+}
+
+/*
+  Only use for Student Progress Section
+*/
+
+.circle {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 10px;
+}
+.commit-circle {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 10px;
+border: 3px solid #d88549;
+}
+.commit .commit-circle:nth {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 10px;
+background-color: #d88549;
+}
+.milestones .circle {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+}
+.completed{
+background-color: #d4ebe8;
+border: 3px solid #50a99c; /* Default border to avoid shift */
+z-index: 100;
+position: relative;
+}
+.incomplete{
+background-color: #eed9da;
+border: 3px solid #bf5362; /* Default border to avoid shift */
+z-index: 100;
+position: relative;
+}
+.line {
+    position: absolute;
+  height: 2px;
+  background-color: black;
+}
+.github-link {
+  font-size: 0.9rem;
+  color: #6a0dad;
+  text-decoration: underline;
+}
+
+.approve-button {
+  padding: 10px 20px;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+/* Document Summary and Chat Section 
+  Only use for Github chat section
+*/
+.document-summary-chat {
+  margin-top: 20px;
+}
+
+.document-summary {
+  background: #50a99c;
+  color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  margin-right: 20px;
+  height: 300px;
+  margin-bottom: 210px;
+}
+
+.chat-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-message {
+  margin: 10px 0;
+}
+
+.question-box {
+  margin-left: auto;
+}
+
+.question-text {
+  background: #e1f5fe;
+  padding: 10px;
+  border-radius: 5px;
+  color: #0277bd;
+  margin-right: 10px;
+}
+
+.answer-text {
+  background: #c8e6c9;
+  padding: 10px;
+  border-radius: 5px;
+  color: #388e3c;
+  margin-left: 10px;
+}
+
+.question-input{
+  padding: 10px;
+  margin-top: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  flex-grow: 1; 
+  margin-right: 10px;
+}
+
+.question-ask-send{
+  padding: 10px;
+  background: #0277bd;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/*
+  Milestones Section
+*/
+.dashboard-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.student-info p {
+  color: #333;
+}
+
+.project-description {
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.border-top {
+  border-top: 1px solid #ccc;
+}
+
+.col-6 {
+  border-right: 1px dashed #ccc;
+}
+
+.col-6:last-child {
+  border-right: none;
+}
+
+.deadline-badge {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.container-fluid {
+  padding: 0;
+}
+.milestone-item {
+  background-color: #b2dfdb; /* Teal for unselected milestones */
+  border: none;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  height: 60px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.selected-milestone {
+  background-color: #d1c4e9; /* Purple for selected milestone */
+}
+
+img {
+  width: 500px; /* Set a fixed width */
+  height: 500px; /* Set a fixed height */
+  object-fit: contain; /* This will make the image fit the fixed width and height */
 }

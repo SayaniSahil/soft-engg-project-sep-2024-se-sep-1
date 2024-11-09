@@ -145,6 +145,8 @@
 </template>
 
 <script>
+import pieChart from '../assets/Pie-Chart-Sample.png';
+import barChart from '../assets/Bar-Chart-Sample.png';
 
 export default {
   props: {
@@ -244,7 +246,8 @@ export default {
             }
         if (this.showStats){
             let ele = document.getElementById("statsPanel");
-            ele.innerHTML = "<img src='data:image/png;base64,'" + this.pie_chart + " alt='Pie Chart'>" + "<img src='data:image/png;base64,'" + this.bar_chart + " alt='Bar Chart'>";
+            //ele.innerHTML = "<img src='data:image/png;base64,'" + this.pie_chart + " alt='Pie Chart'>" + "<img src='data:image/png;base64,'" + this.bar_chart + " alt='Bar Chart'>";
+            ele.innerHTML = "<img src='" + pieChart + "' alt='Pie Chart'>" + "<img src='" + barChart + "' alt='Bar Chart'>";
         } else {
             document.getElementById("projectTitle").innerHTML = this.title;
             document.getElementById("projectDescription").innerHTML = this.description;

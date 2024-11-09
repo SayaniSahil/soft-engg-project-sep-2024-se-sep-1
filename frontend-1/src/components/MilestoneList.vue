@@ -1,29 +1,5 @@
 <template> 
   <div class="container-fluid vh-100 d-flex">
-    <!-- Sidebar remains untouched -->
-    <!-- Sidebar -->
-      <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-        <div class="position-sticky pt-3">
-          <div class="sidebar-header d-flex align-items-center">
-            <i class="bi bi-house-door-fill me-2"></i> <!-- Example icon, use any icon you like -->
-            <span class="app-name">My Application</span>
-          </div>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor" active-class="active-link">Statistics</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/milestones" active-class="active-link">Milestones</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/students" active-class="active-link">Students</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/github" active-class="active-link">Github History</router-link>
-            </li>
-          </ul>
-        </div>
-      </div>
     <!-- Main Content -->
     <div class="col-md-10 d-flex p-0">
       <!-- Milestone List Section -->
@@ -159,21 +135,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.container-fluid {
-  padding: 0;
-}
-.milestone-item {
-  background-color: #b2dfdb; /* Teal for unselected milestones */
-  border: none;
-  margin-bottom: 10px;
-  margin-top: 10px;
-  height: 60px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.selected-milestone {
-  background-color: #d1c4e9; /* Purple for selected milestone */
-}
-</style>

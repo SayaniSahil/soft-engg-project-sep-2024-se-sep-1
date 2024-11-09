@@ -16,10 +16,6 @@ const stats = ref({
       <!-- Sidebar -->
       <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
-          <div class="sidebar-header d-flex align-items-center">
-            <i class="bi bi-house-door-fill me-2"></i> <!-- Example icon, use any icon you like -->
-            <span class="app-name">My Application</span>
-          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <router-link class="nav-link" to="/admin" active-class="active-link">Statistics</router-link>
@@ -57,15 +53,3 @@ const stats = ref({
     </div>
   </div>
 </template>
-
-<style scoped>
-.sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
-  padding: 48px 0 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-}
-</style>

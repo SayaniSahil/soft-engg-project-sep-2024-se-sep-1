@@ -4,10 +4,6 @@
       <!-- Sidebar -->
       <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
-          <div class="sidebar-header d-flex align-items-center">
-            <i class="bi bi-house-door-fill me-2"></i> <!-- Example icon, use any icon you like -->
-            <span class="app-name">My Application</span>
-          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <router-link class="nav-link" to="/student" active-class="active-link">Progress</router-link>
@@ -144,36 +140,3 @@ export default{
 }
 }
 </script>
-
-<style scoped>
-.dashboard-title {
-  font-weight: bold;
-  font-size: 1.5rem;
-}
-
-.student-info p {
-  color: #333;
-}
-
-.project-description {
-  color: #333;
-  font-size: 0.9rem;
-}
-
-.border-top {
-  border-top: 1px solid #ccc;
-}
-
-.col-6 {
-  border-right: 1px dashed #ccc;
-}
-
-.col-6:last-child {
-  border-right: none;
-}
-
-.deadline-badge {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-</style>

@@ -5,27 +5,28 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const username = ref('')
 const password = ref('')
-const userType = ref('student')
 
 const handleLogin = () => {
   // Simple routing based on user type
-  switch (userType.value) {
-    case 'admin':
-      router.push('/admin')
-      break
-    case 'instructor':
-      router.push('/instructor')
-      break
-    case 'student':
-      router.push('/student')
-      break
+  if(username.value == 'admin' && password.value == 'admin'){
+    sessionStorage.setItem('role', 'admin')
+    router.push('/admin')
+  }else if(username.value == 'instructor' && password.value == 'instructor'){
+    sessionStorage.setItem('role', 'instructor')
+    router.push('/instructor')
+  }else if(username.value == 'student' && password.value == 'student'){
+    sessionStorage.setItem('role', 'student')
+    router.push('/student')
+  }else{
+    alert('Invalid credentials')
   }
 }
 </script>
 
 <template>
   <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-    <div class="card shadow-sm" style="width: 400px">
+    <div class="background-image"></div>
+    <div class="card shadow-sm login-container" style="width: 400px">
       <div class="card-body p-4">
         <h2 class="text-center mb-4">Login</h2>
         <form @submit.prevent="handleLogin">
@@ -48,14 +49,6 @@ const handleLogin = () => {
               v-model="password"
               required
             >
-          </div>
-          <div class="mb-3">
-            <label for="userType" class="form-label">Login as</label>
-            <select class="form-select" id="userType" v-model="userType">
-              <option value="student">Student</option>
-              <option value="instructor">Instructor</option>
-              <option value="admin">Admin</option>
-            </select>
           </div>
           <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
