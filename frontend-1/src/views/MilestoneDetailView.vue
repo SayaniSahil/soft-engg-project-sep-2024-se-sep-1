@@ -13,6 +13,7 @@
             </li>
           </ul>
         </div>
+        <div class="nav-link logout" @click="logout">Logout</div>
       </div>
 
       <!-- Main content -->
@@ -121,8 +122,14 @@ export default{
             submissions: null,
         };
     },
+    methods: {
+        async logout(event){
+            event.preventDefault()
+            sessionStorage.clear()
+            this.$router.push('/')
+        }
+    },
     created(){
-        console.log(this.id);
         this.milestones = [
         { id: 1, name: 'Project Document', status: 'completed' },
         { id: 2, name: 'Milestone 1', status: 'completed' },

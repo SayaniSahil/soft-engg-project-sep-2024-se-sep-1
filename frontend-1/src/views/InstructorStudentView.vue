@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import StudentList from '../components/StudentList.vue'
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
+const logout = () => {
+  sessionStorage.clear()
+  router.push('/')
+}
 </script>
 
 <template>
@@ -23,6 +30,7 @@ import StudentList from '../components/StudentList.vue'
             </li>
           </ul>
         </div>
+        <div class="nav-link logout" @click="logout">Logout</div>
       </div>
 
       <!-- Main content -->

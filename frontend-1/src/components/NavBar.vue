@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const router = useRouter()
 const route = useRoute()
+const name = ref(sessionStorage.getItem('name') || '')
+const id = ref(sessionStorage.getItem('id') || '')
+
+// Function to update the state based on sessionStorage
+const updateFromSessionStorage = () => {
+  name.value = sessionStorage.getItem('name') || ''
+  id.value = sessionStorage.getItem('id') || ''
+}
+
+// Watch for changes in the route, indicating a page change or login
+watch(route, () => {
+  updateFromSessionStorage(); // Update session data whenever route changes
+}, { immediate: true });
 
 const isLoggedIn = computed(() => route.path !== '/')
-
-const logout = () => {
-  sessionStorage.removeItem('role')
-  router.push('/')
-}
 </script>
 
 <template>
@@ -21,12 +28,15 @@ const logout = () => {
       </div>
       <div class="navbar-brand pacifico-regular">Trackie</div>
       <div class="navbar-nav me-auto">
-        <router-link class="nav-link" to="/admin">Admin</router-link>
-        <router-link class="nav-link" to="/instructor">Instructor</router-link>
-        <router-link class="nav-link" to="/student">Student</router-link>
       </div>
       <div class="navbar-nav">
-        <button class="btn btn-outline-light" @click="logout">Logout</button>
+        <div class="nav-item greeting" style="margin-right: 20px;">
+          <div>Welcome, {{ name }}<br>{{ id }}</div>
+        </div>
+        <div class="navbar-brand circle-logo">
+            <img src="../assets/placeholder.png" alt="Logo" class="logo-2">
+        </div>
+        <!--<button class="btn btn-outline-light" @click="logout">Logout</button>-->
       </div>
     </div>
   </nav>

@@ -19,6 +19,7 @@
                     </li>
                 </ul>
                 </div>
+                <div class="nav-link logout" @click="logout">Logout</div>
             </div>
         
             <!-- Main Content -->
@@ -120,7 +121,12 @@
             let ele = document.getElementsByClassName('commit-circle');
             ele[0].style.backgroundColor = '#d88549';
             console.log(ele);
-        }
+        },
+        async logout(event) {
+            event.preventDefault();
+            sessionStorage.clear();
+            this.$router.push('/');
+        },
     },
     mounted() {
       this.circleColor();

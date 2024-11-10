@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import StatisticsCard from '../components/StatisticsCard.vue'
 import Statistics from '../components/Statistics.vue'
 
@@ -8,6 +9,12 @@ const stats = ref({
   activeStudents: 45,
   completionRate: '78%'
 })
+
+const router = useRouter()
+const logout = () => {
+  sessionStorage.clear()
+  router.push('/')
+}
 </script>
 
 <template>
@@ -28,6 +35,7 @@ const stats = ref({
             </li>
           </ul>
         </div>
+        <div class="nav-link logout" @click="logout">Logout</div>
       </div>
 
       <!-- Main content -->

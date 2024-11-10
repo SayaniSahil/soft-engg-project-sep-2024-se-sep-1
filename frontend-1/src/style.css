@@ -37,7 +37,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('./assets/cool-background.png');
+  background: url('./assets/bg-1.jpg') no-repeat center center fixed; /* Background image */
   background-size: cover; /* Cover the entire background */
   filter: blur(0px); /* Blur effect for background */
   z-index: 0; /* Make sure the background stays behind the login form */
@@ -45,13 +45,14 @@ body {
 
 .login-container {
   position: relative;
-  background: rgba(255, 255, 255, 0.3); /* Slightly translucent white background */
+  background: rgba(195,193,218, 0.5); /* Slightly translucent white background */
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
   z-index: 1; /* Make sure the login form stays on top */
+  color: black; /* Text color for the login form */
 }
 
 /*
@@ -81,8 +82,43 @@ body {
   height: auto;
 }
 
+.circle-logo {
+  width: 52px; /* Adjust the size as needed */
+  height: 52px; /* Keep it the same as the width for a perfect circle */
+  background-color: transparent; /* Background color of the circle */
+  border-radius: 50%; /* Makes the image circular */
+  object-fit: cover; /* Ensures the image covers the circle without distortion */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-2 {
+  width: 100%; /* Adjust size relative to the circle */
+  height: auto;
+  background-color: transparent; /* Ensure the image itself has no background */
+}
+
+.greeting{
+  color: white;
+  text-align: right;
+}
+
 .navbar{
   z-index: 1000;
+}
+
+.nav-link:hover{
+  background-color: #e0dcf4 !important;
+}
+
+.logout{
+  margin-top: 100px;
+}
+
+.logout:hover{
+  color: #c05564 !important;
+  background-color: #eed9da !important;
 }
 
 /*

@@ -70,7 +70,6 @@ export default {
         circleColor(){
             let ele = document.getElementsByClassName('commit-circle');
             ele[0].style.backgroundColor = '#d88549';
-            console.log(ele);
         }
     },
     mounted() {

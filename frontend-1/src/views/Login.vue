@@ -6,16 +6,22 @@ const router = useRouter()
 const username = ref('')
 const password = ref('')
 
-const handleLogin = () => {
+const handleLogin = async () => {
   // Simple routing based on user type
   if(username.value == 'admin' && password.value == 'admin'){
     sessionStorage.setItem('role', 'admin')
+    sessionStorage.setItem('name', 'Admin')
+    sessionStorage.setItem('id', 'xxFxxxxxxx')
     router.push('/admin')
   }else if(username.value == 'instructor' && password.value == 'instructor'){
     sessionStorage.setItem('role', 'instructor')
+    sessionStorage.setItem('name', 'Instructor')
+    sessionStorage.setItem('id', 'xxFxxxxxxx')
     router.push('/instructor')
   }else if(username.value == 'student' && password.value == 'student'){
     sessionStorage.setItem('role', 'student')
+    sessionStorage.setItem('name', 'Student')
+    sessionStorage.setItem('id', 'xxFxxxxxxx')
     router.push('/student')
   }else{
     alert('Invalid credentials')

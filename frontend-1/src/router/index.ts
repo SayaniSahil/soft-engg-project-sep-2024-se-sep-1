@@ -78,8 +78,10 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const role = sessionStorage.getItem('role')
+  const name = sessionStorage.getItem('name')
+  const id = sessionStorage.getItem('id')
 
-  if(!role && to.name !== 'login'){
+  if((!role || !name || !id) && to.name !== 'login'){
     sessionStorage.clear()
     next({ name: 'login' })
   }else if(to.name === 'login' && role){

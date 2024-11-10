@@ -16,6 +16,7 @@
             </li>
           </ul>
         </div>
+        <div class="nav-link logout" @click="logout">Logout</div>
       </div>
 
       <!-- Main content -->
@@ -31,6 +32,7 @@
 
 <script>
     import { ref } from 'vue'
+    import { useRouter } from 'vue-router'
     import StatisticsCard from '../components/StatisticsCard.vue'
     import ProjectList from '../components/ProjectList.vue'
 
@@ -58,6 +60,11 @@
             },
             async initializePage(){
                 await this.getProjects();
+            },
+            async logout(event){
+                event.preventDefault();
+                sessionStorage.clear();
+                this.$router.push('/');
             }
         },
         async created(){

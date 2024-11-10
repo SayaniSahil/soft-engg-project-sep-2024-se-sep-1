@@ -16,6 +16,7 @@
             </li>
           </ul>
         </div>
+        <div class="nav-link logout" @click="logout">Logout</div>
       </div>
 
       <!-- Main content -->
@@ -58,6 +59,12 @@
             },
             async initializePage(){
                 await this.getProjects();
+            },
+            async logout(event){
+                event.preventDefault();
+                // Clear session storage and redirect to login page
+                sessionStorage.clear();
+                this.$router.push('/');
             }
         },
         async created(){

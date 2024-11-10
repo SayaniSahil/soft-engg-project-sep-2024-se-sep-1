@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import StatisticsCard from '../components/StatisticsCard.vue'
 import Statistics from '../components/Statistics.vue'
 
@@ -16,6 +17,12 @@ const milestones = ref([
   { id: 4, name: 'Milestone 3', status: 'pending' },
   { id: 5, name: 'Milestone 4', status: 'overdue' }
 ])
+
+const router = useRouter()
+const logout = () => {
+  sessionStorage.clear()
+  router.push('/')
+}
 </script>
 
 <template>
@@ -39,6 +46,7 @@ const milestones = ref([
             </li>
           </ul>
         </div>
+        <div class="nav-link logout" @click="logout">Logout</div>
       </div>
 
       <!-- Main content -->
