@@ -67,11 +67,11 @@ def update_project(project_id):
     title = data.get('title')
     description = data.get('description')
 
-    if not title or not description:
+    if not title and not description:
         return jsonify({"error": "Title and description are required"}), 400
 
-    project.title = title
-    project.description = description
+    project.title = title if title else project.title
+    project.description = description if description else project.description
     db.session.commit()
 
     return jsonify({"message": "Project updated successfully", "project": {

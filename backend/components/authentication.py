@@ -27,27 +27,21 @@ def login():
     except Exception as e:
         return handle_error(e)
 
-'''@auth_bp.route('/logout_user', methods=['POST'])
-#@login_required
-def logout():
+@auth_bp.route('/register_user', methods=['POST'])
+def register():
     try:
-        logout_user()
-        
-        return generate_response(message='Logout successful')
-    except Exception as e:
-        return handle_error(e)'''
-
-# Restrict access to only authenticated users, needs changes
-@auth_bp.route('/profile', methods=['POST'])
-@auth_required('token')
-def get_profile():
-    try:
-        user = datastore.find_user(email=request.get_json().get('email'))
-        return generate_response(data={
-            'user_id': user.user_id,
-            'email': user.email,
-            'username': user.username,
-            'role': str(user.roles[0].name)
-        })
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        username = data.get('username')
+        role = data.get('role')
+        if not email or not password or not username or not role:
+            return jsonify({"message": "Missing required fields"}), 400
+        if datastore.find_user(email=email):
+            return jsonify({"message": "User already exists"}), 400
+        user = datastore.create_user(email=email, password=password, username=username)
+        user.roles.append(datastore.find_role(role))
+        db.session.commit()
+        return generate_response(message='User created successfully')
     except Exception as e:
         return handle_error(e)

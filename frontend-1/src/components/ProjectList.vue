@@ -167,8 +167,19 @@ export default {
     };
   },
   methods: {
-    addProject(event){
+    async addProject(event){
         event.preventDefault();
+        // Example of how to make a fetch request
+        // Either use this or the axios library
+        //const response = await fetch('http://localhost:5000/projects', {
+        //    method: 'GET',
+        //    headers: {
+        //        'Content-Type': 'application/json',
+        //        'Authentication-Token': 'eyJ2ZXIiOiI1IiwidWlkIjoiNDE4MjJlYzlhY2JhNDZlYmI2ZjdlZGY4OGEyNjBiY2EiLCJmc19wYWEiOjE3MzE2OTA4MzQuMzkwMDQzLCJleHAiOjB9.ZzeBUg.2kItB8QvuzToB40D5NFanGSzy24'
+        //    }
+        //});
+        const data = await response.json();
+        console.log(data);
         let form = document.getElementById("add_project");
         this.title = form.title.value;
         this.description = form.description.value;

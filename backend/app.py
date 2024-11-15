@@ -7,7 +7,7 @@ from flask_login import LoginManager
 from flask_cors import CORS
 
 from components.authentication import auth_bp
-from components.Instructor import instructor_bp
+from components.instructor import instructor_bp
 from components.submission import student_submission_bp
 from components.milestones import milestone_bp
 
