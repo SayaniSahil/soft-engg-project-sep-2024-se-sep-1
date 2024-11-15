@@ -7,7 +7,9 @@ from flask_login import LoginManager
 from flask_cors import CORS
 
 from components.authentication import auth_bp
-from components.Instructor import instructor_bp
+from routes.student_routes import student_bp
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -17,9 +19,8 @@ def create_app():
     app.security = Security(app, datastore)
     db.init_app(app)
     bcrypt.init_app(app)
-    
     app.register_blueprint(auth_bp)
-    app.register_blueprint(instructor_bp)
+    app.register_blueprint(student_bp)
     
     @login_manager.user_loader
     def load_user(user_id):
