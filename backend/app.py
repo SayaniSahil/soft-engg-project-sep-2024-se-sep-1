@@ -7,9 +7,10 @@ from flask_login import LoginManager
 from flask_cors import CORS
 
 from components.authentication import auth_bp
-from components.instructor import instructor_bp
+from components.project import project_bp
 from components.submission import student_submission_bp
 from components.milestones import milestone_bp
+from components.student import student_bp
 
 def create_app():
     app = Flask(__name__)
@@ -21,9 +22,10 @@ def create_app():
     bcrypt.init_app(app)
     
     app.register_blueprint(auth_bp)
-    app.register_blueprint(instructor_bp)
+    app.register_blueprint(project_bp)
     app.register_blueprint(student_submission_bp)
     app.register_blueprint(milestone_bp)
+    app.register_blueprint(student_bp)
     
     @login_manager.user_loader
     def load_user(user_id):

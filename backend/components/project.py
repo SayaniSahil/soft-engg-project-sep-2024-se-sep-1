@@ -4,10 +4,10 @@ from datetime import datetime
 from components.models import Project, db
 
 # Define a Blueprint for project operations
-instructor_bp = Blueprint('instructor', __name__)
+project_bp = Blueprint('project', __name__)
 
 # Route to create a new project
-@instructor_bp.route('/projects', methods=['POST'])
+@project_bp.route('/projects', methods=['POST'])
 @auth_required()
 def create_project():
     data = request.json
@@ -33,7 +33,7 @@ def create_project():
     }}), 201
 
 # Route to read (get) all projects
-@instructor_bp.route('/projects', methods=['GET'])
+@project_bp.route('/projects', methods=['GET'])
 @auth_required()
 def get_projects():
     projects = Project.query.all()
@@ -47,7 +47,7 @@ def get_projects():
     return jsonify({"projects": project_list}), 200
 
 # Route to read (get) a single project by ID
-@instructor_bp.route('/projects/<int:project_id>', methods=['GET'])
+@project_bp.route('/projects/<int:project_id>', methods=['GET'])
 @auth_required()
 def get_project(project_id):
     project = Project.query.get_or_404(project_id)
@@ -59,7 +59,7 @@ def get_project(project_id):
     }), 200
 
 # Route to update a project
-@instructor_bp.route('/projects/<int:project_id>', methods=['PUT'])
+@project_bp.route('/projects/<int:project_id>', methods=['PUT'])
 @auth_required()
 def update_project(project_id):
     project = Project.query.get_or_404(project_id)
@@ -82,7 +82,7 @@ def update_project(project_id):
     }}), 200
 
 # Route to delete a project
-@instructor_bp.route('/projects/<int:project_id>', methods=['DELETE'])
+@project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
 @auth_required()
 def delete_project(project_id):
     project = Project.query.get_or_404(project_id)
