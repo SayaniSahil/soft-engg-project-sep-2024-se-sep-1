@@ -12,6 +12,7 @@ from components.submission import student_submission_bp
 from components.milestones import milestone_bp
 from components.student import student_bp
 from components.commit_history import commit_history_bp
+from components.llm import llm_bp
 
 
 
@@ -30,6 +31,8 @@ def create_app():
     app.register_blueprint(milestone_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(commit_history_bp)
+    app.register_blueprint(llm_bp)
+    
     
     @login_manager.user_loader
     def load_user(user_id):
