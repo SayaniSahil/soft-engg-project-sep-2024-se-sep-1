@@ -8,43 +8,75 @@ import json
 
 milestone_bp = Blueprint('milestones', __name__)
 
-@milestone_bp.route('/instructor/milestones', methods=['GET'])
+@milestone_bp.route('/instructor/milestones/<int:project_id>', methods=['GET'])
 @auth_required('token')
+@roles_required('instructor')
+def get_instructor_milestones(project_id: int):
+    """Get all milestones for a specific project."""
 
-def get_instructor_milestones():
-    """Get milestones for instructor's projects."""
-    try:
-        instructor = current_user
-        
-        # Get all projects assigned to instructor
-        projects = Project.query.join(
-            ProjectInstructorAssignment,
-            Project.project_id == ProjectInstructorAssignment.project_id
-        ).filter(
-            ProjectInstructorAssignment.instructor_id == instructor.user_id
-        ).all()
-        
-        milestones_data = []
-        for project in projects:
-            project_milestones = Milestone.query.filter_by(project_id=project.project_id).all()
-            for milestone in project_milestones:
-                # Format matching frontend expectations
-                milestones_data.append({
-                    'id': milestone.milestone_id,
-                    'title': milestone.title,
-                    'description': milestone.description,
-                    'project': {
-                        'id': project.project_id,
-                        'title': project.title
-                    }
-                })
-        
-        return jsonify({
-            'status': 'success',
-            'data': milestones_data
-        }), 200
-    except Exception as e:
-        return handle_error(e)
+    # Verify project exists
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({"error": "Project not found"}), 404
+
+    # Get milestones
+    milestones = Milestone.query.filter_by(project_id=project_id)\
+        .order_by(Milestone.start_date).all()
+
+    response_data = [{
+        'id': milestone.milestone_id,
+        'title': milestone.title,
+        'description': milestone.description,
+        'start_date': milestone.start_date.isoformat(),
+        'end_date': milestone.end_date.isoformat(),
+        'weightage': milestone.weightage,
+        'document_url': milestone.document_url,
+        'submissions_count': len(milestone.submissions)
+    } for milestone in milestones]
+
+
+    return jsonify({"data": response_data}), 200
+
+@milestone_bp.route('/student/milestones/<int:project_id>', methods=['GET'])
+@auth_required('token')
+def get_student_milestones(project_id: int):
+
+    # Verify project exists
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({"message": "Project not found"}), 404
+
+    # Get milestones with student's submissions
+    milestones = Milestone.query.filter_by(project_id=project_id)\
+        .order_by(Milestone.start_date).all()
+
+    response_data = []
+    for milestone in milestones:
+        # Get student's submission for this milestone
+        submission = MilestoneSubmission.query.filter_by(
+            milestone_id=milestone.milestone_id,
+            student_id=current_user.user_id
+        ).first()
+
+        milestone_data = {
+            'id': milestone.milestone_id,
+            'title': milestone.title,
+            'description': milestone.description,
+            'start_date': milestone.start_date.isoformat(),
+            'end_date': milestone.end_date.isoformat(),
+            'weightage': milestone.weightage,
+            'document_url': milestone.document_url,
+            'submission': None if not submission else {
+                'id': submission.submission_id,
+                'status': submission.evaluation_status,
+                'submitted_at': submission.submission_date.isoformat(),
+                'document_url': submission.document_url,
+                'evaluation_date': submission.evaluation_date.isoformat() if submission.evaluation_date else None
+            }
+        }
+        response_data.append(milestone_data)
+
+    return jsonify({"data": response_data}), 200
 
 @milestone_bp.route('/instructor/milestones/generate', methods=['POST'])
 @auth_required('token')
@@ -54,9 +86,10 @@ def generate_milestones():
     try:
         data = request.get_json()
         problem_statement = data.get('problemStatement')
+        project_id = data.get('project_id')
         milestone_count = data.get('milestoneCount', 5)
         
-        if not problem_statement:
+        if not problem_statement or not project_id:
             return jsonify({
                 'status': 'error',
                 'message': 'Problem statement is required'
@@ -69,6 +102,7 @@ def generate_milestones():
         
         for i in range(milestone_count):
             milestone = {
+                'project_id': project_id,
                 'title': f'Milestone {i+1}',
                 'description': f'Description for Milestone {i+1}',
                 'start_date': (base_date + timedelta(days=i*14)).strftime('%Y-%m-%d'),
@@ -76,6 +110,9 @@ def generate_milestones():
                 'weightage': 100/milestone_count
             }
             milestones.append(milestone)
+        
+        db.session.add_all(milestones)
+        db.session.commit()
             
         return jsonify({
             'status': 'success',
@@ -211,54 +248,4 @@ def delete_milestone(milestone_id):
         }), 200
     except Exception as e:
         db.session.rollback()
-        return handle_error(e)
-
-@milestone_bp.route('/student/milestones', methods=['GET'])
-@auth_required('token')
-@roles_required('student')
-def get_student_milestones():
-    """Get milestones for student's assigned project."""
-    try:
-        student = current_user
-        
-        # Get student's assigned project
-        assignment = ProjectStudentAssignment.query.filter_by(
-            student_id=student.user_id
-        ).first()
-        
-        if not assignment:
-            return jsonify({
-                'status': 'error',
-                'message': 'No project assigned'
-            }), 404
-            
-        milestones = Milestone.query.filter_by(
-            project_id=assignment.project_id
-        ).order_by(Milestone.start_date).all()
-        
-        milestones_data = []
-        for milestone in milestones:
-            submission = MilestoneSubmission.query.filter_by(
-                milestone_id=milestone.milestone_id,
-                student_id=student.user_id
-            ).first()
-            
-            milestones_data.append({
-                'id': milestone.milestone_id,
-                'name': milestone.title,
-                'description': milestone.description,
-                'start_date': milestone.start_date.strftime('%Y-%m-%d'),
-                'end_date': milestone.end_date.strftime('%Y-%m-%d'),
-                'submission': {
-                    'id': submission.submission_id if submission else None,
-                    'document_url': submission.document_url if submission else None,
-                    'evaluation_status': submission.evaluation_status if submission else None
-                } if submission else None
-            })
-            
-        return jsonify({
-            'status': 'success',
-            'data': milestones_data
-        }), 200
-    except Exception as e:
         return handle_error(e)

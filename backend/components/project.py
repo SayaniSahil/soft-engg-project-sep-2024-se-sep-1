@@ -15,7 +15,7 @@ def create_project():
     description = data.get('description')
 
     if not title or not description:
-        return jsonify({"error": "Title and description are required"}), 400
+        return jsonify({"message": "Title and description are required"}), 400
 
     new_project = Project(
         title=title,
