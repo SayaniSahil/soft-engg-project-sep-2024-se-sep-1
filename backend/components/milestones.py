@@ -10,7 +10,6 @@ milestone_bp = Blueprint('milestones', __name__)
 
 @milestone_bp.route('/instructor/milestones/<int:project_id>', methods=['GET'])
 @auth_required('token')
-@roles_required('instructor')
 def get_instructor_milestones(project_id: int):
     """Get all milestones for a specific project."""
 
@@ -31,7 +30,7 @@ def get_instructor_milestones(project_id: int):
         'end_date': milestone.end_date.isoformat(),
         'weightage': milestone.weightage,
         'document_url': milestone.document_url,
-        'submissions_count': len(milestone.submissions)
+        #'submissions_count': len(milestone.submissions)
     } for milestone in milestones]
 
 
@@ -40,7 +39,6 @@ def get_instructor_milestones(project_id: int):
 @milestone_bp.route('/student/milestones/<int:project_id>', methods=['GET'])
 @auth_required('token')
 def get_student_milestones(project_id: int):
-
     # Verify project exists
     project = Project.query.get(project_id)
     if not project:
