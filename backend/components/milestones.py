@@ -79,47 +79,60 @@ def get_student_milestones(project_id: int):
     return jsonify({"data": response_data}), 200
 
 @milestone_bp.route('/instructor/milestones/generate', methods=['POST'])
-@auth_required('token')
-
 def generate_milestones():
     """Generate milestones based on problem statement."""
     try:
         data = request.get_json()
-        problem_statement = data.get('problemStatement')
+        problem_statement = data.get('problem_statement')
         project_id = data.get('project_id')
-        milestone_count = data.get('milestoneCount', 5)
+        milestone_count = data.get('milestone_count', 5)
         
         if not problem_statement or not project_id:
             return jsonify({
                 'status': 'error',
-                'message': 'Problem statement is required'
+                'message': 'Problem statement and project_id are required.'
             }), 400
-            
-        # For demo, generate simple milestones
-        # In production, integrate with actual AI service
+        
         milestones = []
         base_date = datetime.now()
         
+        # Generate Milestone instances
         for i in range(milestone_count):
-            milestone = {
-                'project_id': project_id,
-                'title': f'Milestone {i+1}',
-                'description': f'Description for Milestone {i+1}',
-                'start_date': (base_date + timedelta(days=i*14)).strftime('%Y-%m-%d'),
-                'end_date': (base_date + timedelta(days=(i+1)*14)).strftime('%Y-%m-%d'),
-                'weightage': 100/milestone_count
-            }
+            milestone = Milestone(
+                project_id=project_id,
+                title=f'Milestone {i + 1}',
+                description=f'Description for Milestone {i + 1}',
+                start_date=(base_date + timedelta(days=i * 14)).date(),
+                end_date=(base_date + timedelta(days=(i + 1) * 14)).date(),
+                weightage=100 / milestone_count,
+                document_url=None  # Set this to None or any default URL as needed
+            )
             milestones.append(milestone)
         
+        # Add Milestones to the database
         db.session.add_all(milestones)
         db.session.commit()
-            
-        return jsonify({
-            'status': 'success',
-            'data': milestones
-        }), 200
+        
+        # Convert milestones to JSON format for the response
+        milestones_json = [
+            {
+                'milestone_id': milestone.milestone_id,
+                'project_id': milestone.project_id,
+                'title': milestone.title,
+                'description': milestone.description,
+                'start_date': milestone.start_date.strftime('%Y-%m-%d'),
+                'end_date': milestone.end_date.strftime('%Y-%m-%d'),
+                'weightage': milestone.weightage,
+                'document_url': milestone.document_url,
+                'created_at': milestone.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for milestone in milestones
+        ]
+        
+        return jsonify({'status': 'success', 'data': milestones_json}), 200
+    
     except Exception as e:
-        return handle_error(e)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @milestone_bp.route('/instructor/milestones', methods=['POST'])
 @auth_required('token')
