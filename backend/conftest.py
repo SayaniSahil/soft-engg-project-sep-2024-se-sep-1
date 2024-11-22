@@ -1,41 +1,46 @@
 import pytest
-from requests import Session
+from app import create_app
 
 @pytest.fixture(scope='session')
-def admin_setup_data():
-    client = Session()
+def app():
+    app = create_app()
+    return app
+
+@pytest.fixture(scope='session')
+def admin_setup_data(app):
+    client = app.test_client()
     # Login Admin
     response = client.post('http://localhost:5000/login_user', json={
         'email': 'admin@gmail.com',
         'password': 'Admin@12'
     })
-    response_data = response.json()
+    response_data = response.get_json()
     assert response.status_code == 200
     token = response_data['token']
     yield token, client
 
 @pytest.fixture(scope='session')
-def instructor_setup_data():
-    client = Session()
+def instructor_setup_data(app):
+    client = app.test_client()
     # Login Instructor
     response = client.post('http://localhost:5000/login_user', json={
         'email': 'instructor@gmail.com',
         'password': 'Instructor@12'
     })
-    response_data = response.json()
+    response_data = response.get_json()
     assert response.status_code == 200
     token = response_data['token']
     yield token, client
 
 @pytest.fixture(scope='session')
-def student_setup_data():
-    client = Session()
+def student_setup_data(app):
+    client = app.test_client()
     # Login Student
     response = client.post('http://localhost:5000/login_user', json={
         'email': 'student@gmail.com',
         'password': 'Student@12'
     })
-    response_data = response.json()
+    response_data = response.get_json()
     assert response.status_code == 200
     token = response_data['token']
     yield token, client
@@ -49,12 +54,12 @@ def test(admin_setup_data):
     assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
     # Check if the response is as expected, a valid json response
     assert response.headers.get('Content-Type') == 'application/json', "Response is not JSON"
-    print(response.json())
+    print(response.get_json())
 
 # This should fail because the token is invalid. Create exhasutive tests for the other roles
 def test_1(admin_setup_data):
     token, client = admin_setup_data
     response = client.get('http://localhost:5000/projects', headers={'Authentication-Token': f'invalid{token}'})
-    assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
+    assert response.status_code != 200, f"Unexpected status code: {response.status_code}"
     # Check if the response is as expected, a valid json response
     assert response.headers.get('Content-Type') != 'application/json', "Response is not JSON" # This should be true
