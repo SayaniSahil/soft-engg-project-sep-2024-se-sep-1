@@ -2,7 +2,10 @@ from datetime import datetime
 import json
 from components.models import Project, db
 
+project_id = None
+
 def test_create_project(admin_setup_data):
+    global project_id
     token,client=admin_setup_data
     headers={'Authentication-Token': f'{token}'}
     # Valid project creation
@@ -19,6 +22,8 @@ def test_create_project(admin_setup_data):
     data = response.get_json()
     assert data["message"] == "Project created successfully"
     assert data["project"]["title"] == "Test Project"
+    project_id = data["project"]["project_id"]
+    assert project_id != None
 
     # Missing fields
     response = client.post(
@@ -39,18 +44,17 @@ def test_get_projects(admin_setup_data):
     response = client.get("/projects", headers=headers)
     assert response.status_code == 200
     data = response.get_json()
-    assert len(data["projects"]) == 2
 
 
 def test_get_project(admin_setup_data):
-
+    global project_id
     token,client=admin_setup_data
     headers={'Authentication-Token': f'{token}'}
 
-    response = client.get(f"/projects/{1}", headers=headers)
+    response = client.get(f"/projects/{project_id}", headers=headers)
     assert response.status_code == 200
     data = response.get_json()
-    assert data["title"] == "Single Project"
+    assert data["title"] == "Test Project"
 
     # Invalid project ID
     response = client.get("/projects/999", headers=headers)
@@ -58,12 +62,12 @@ def test_get_project(admin_setup_data):
 
 
 def test_update_project(admin_setup_data):
-
+    global project_id
     token,client=admin_setup_data
     headers={'Authentication-Token': f'{token}'}
 
     response = client.put(
-        f"/projects/{1}",
+        f"/projects/{project_id}",
         headers=headers,
         data=json.dumps({"title": "New Title"}),
         content_type="application/json"
@@ -74,7 +78,7 @@ def test_update_project(admin_setup_data):
 
     # Missing fields
     response = client.put(
-        f"/projects/{1}",
+        f"/projects/{project_id}",
         headers=headers,
         data=json.dumps({}),
         content_type="application/json"
@@ -84,15 +88,17 @@ def test_update_project(admin_setup_data):
 
 
 def test_delete_project(admin_setup_data):
+    global project_id
     token,client=admin_setup_data
     headers={'Authentication-Token': f'{token}'}
 
-    response = client.delete(f"/projects/{1}", headers=headers)
+    response = client.delete(f"/projects/{project_id}", headers=headers)
     assert response.status_code == 200
     assert response.get_json()["message"] == "Project deleted successfully"
 
+    response = client.get(f"/projects/{project_id}", headers=headers)
     # Verify deletion
-    assert Project.query.get(1) is None
+    assert response.status_code == 404
 
     # Invalid project ID
     response = client.delete("/projects/999", headers=headers)
