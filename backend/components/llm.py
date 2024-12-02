@@ -50,7 +50,7 @@ def create_llm_chain(vectorstore):
     """
     prompt = PromptTemplate(template=template, input_variables=["context", "question"])
 
-    llm = HuggingFaceEndpoint(repo_id=repo_id, max_length=128, temperature=0.7, token=HUGGINGFACEHUB_API_TOKEN)
+    llm = HuggingFaceEndpoint(repo_id=repo_id, max_length=800,  token=HUGGINGFACEHUB_API_TOKEN)
     
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
 
