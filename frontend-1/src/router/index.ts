@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
+import Register from '../views/Register.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import InstructorDashboard from '../views/InstructorDashboard.vue'
 import StudentDashboard from '../views/StudentDashboard.vue'
@@ -15,6 +16,11 @@ const routes = [
       path: '/',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/register-instructor',
+      name: 'register-instructor',
+      component: Register
     },
     {
       path: '/admin',
@@ -77,14 +83,16 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const role = sessionStorage.getItem('role')
-  const name = sessionStorage.getItem('name')
-  const id = sessionStorage.getItem('id')
+  const role = localStorage.getItem('role')
+  const name = localStorage.getItem('username')
+  const id = localStorage.getItem('id')
 
-  if((!role || !name || !id) && to.name !== 'login'){
-    sessionStorage.clear()
+  console.log(to.name, role, name, id)
+  if((!role || !name || !id) && (to.name !== 'login' && to.name !== 'register-instructor')){
+    localStorage.clear()
     next({ name: 'login' })
   }else if(to.name === 'login' && role){
+    console.log('Redirecting to', role)
     next({ name: role })
   }
   let path = to.name?.toString();

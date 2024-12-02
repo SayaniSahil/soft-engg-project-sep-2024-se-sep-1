@@ -12,7 +12,7 @@ const stats = ref({
 
 const router = useRouter()
 const logout = () => {
-  sessionStorage.clear()
+  localStorage.clear()
   router.push('/')
 }
 </script>

@@ -27,8 +27,11 @@ def submit_milestone():
 
     # Optionally handle the evaluation date if provided
     evaluation_date = data.get('evaluation_date')
-    if evaluation_date:
-        evaluation_date = datetime.strptime(evaluation_date, '%Y-%m-%d %H:%M:%S')
+    if evaluation_date: 
+        try:
+            evaluation_date = datetime.strptime(evaluation_date, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            return jsonify({"message": "Invalid date format"}), 400
 
     # Create a new instance of MilestoneSubmission without 'submission_id'
     new_submission = MilestoneSubmission(

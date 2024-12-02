@@ -3,29 +3,32 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const username = ref('')
+const email = ref('')
 const password = ref('')
 
 const handleLogin = async () => {
-  // Simple routing based on user type
-  if(username.value == 'admin' && password.value == 'admin'){
-    sessionStorage.setItem('role', 'admin')
-    sessionStorage.setItem('name', 'Admin')
-    sessionStorage.setItem('id', 'xxFxxxxxxx')
-    router.push('/admin')
-  }else if(username.value == 'instructor' && password.value == 'instructor'){
-    sessionStorage.setItem('role', 'instructor')
-    sessionStorage.setItem('name', 'Instructor')
-    sessionStorage.setItem('id', 'xxFxxxxxxx')
-    router.push('/instructor')
-  }else if(username.value == 'student' && password.value == 'student'){
-    sessionStorage.setItem('role', 'student')
-    sessionStorage.setItem('name', 'Student')
-    sessionStorage.setItem('id', 'xxFxxxxxxx')
-    router.push('/student')
-  }else{
-    alert('Invalid credentials')
+  // Call the login API
+  let response = await fetch('http://localhost:5000/login_user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: email.value,
+      password: password.value,
+    }),
+  })
+  let result = await response.json()
+  if (!response.ok) {
+    alert(result.message)
+    return
   }
+  result.role = result.role.toLowerCase()
+  localStorage.setItem('token', result.token)
+  localStorage.setItem('username', result.username)
+  localStorage.setItem('role', result.role)
+  localStorage.setItem('id', result.email.split('@')[0])
+  router.push('/' + result.role)
 }
 </script>
 
@@ -37,12 +40,12 @@ const handleLogin = async () => {
         <h2 class="text-center mb-4">Login</h2>
         <form @submit.prevent="handleLogin">
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
+            <label for="email" class="form-label">Email</label>
             <input
               type="text"
               class="form-control"
-              id="username"
-              v-model="username"
+              id="email"
+              v-model="email"
               required
             >
           </div>

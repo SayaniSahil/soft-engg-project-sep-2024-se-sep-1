@@ -15,7 +15,7 @@ def check_user(email, password):
     match = bcrypt.check_password_hash(user.password, password)
     if not match: return jsonify({"message": "Email or Password incorrect"}), 400
     # If everything is correct, return authentication token
-    return {"token": user.get_auth_token(), "email": user.email, "role": str(user.roles[0].name)}, 200
+    return {"token": user.get_auth_token(), "username": user.username, "email": user.email, "role": str(user.roles[0].name)}, 200
 
 @auth_bp.route('/login_user', methods=['POST'])
 def login():
@@ -27,21 +27,22 @@ def login():
     except Exception as e:
         return handle_error(e)
 
-@auth_bp.route('/register_user', methods=['POST'])
+@auth_bp.route('/register_instructor', methods=['POST'])
 def register():
     try:
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
         username = data.get('username')
-        role = data.get('role')
+        role = "Instructor"
         if not email or not password or not username or not role:
             return jsonify({"message": "Missing required fields"}), 400
         if datastore.find_user(email=email):
             return jsonify({"message": "User already exists"}), 400
+        password = bcrypt.generate_password_hash(password).decode('utf-8')
         user = datastore.create_user(email=email, password=password, username=username)
         user.roles.append(datastore.find_role(role))
         db.session.commit()
-        return generate_response(message='User created successfully')
+        return {"token": user.get_auth_token(), "username": user.username, "email": user.email, "role": str(user.roles[0].name)}, 200
     except Exception as e:
         return handle_error(e)

@@ -3,13 +3,13 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const name = ref(sessionStorage.getItem('name') || '')
-const id = ref(sessionStorage.getItem('id') || '')
+const name = ref(localStorage.getItem('username') || '')
+const id = ref(localStorage.getItem('id') || '')
 
 // Function to update the state based on sessionStorage
 const updateFromSessionStorage = () => {
-  name.value = sessionStorage.getItem('name') || ''
-  id.value = sessionStorage.getItem('id') || ''
+  name.value = localStorage.getItem('username') || ''
+  id.value = localStorage.getItem('id') || ''
 }
 
 // Watch for changes in the route, indicating a page change or login
@@ -17,7 +17,7 @@ watch(route, () => {
   updateFromSessionStorage(); // Update session data whenever route changes
 }, { immediate: true });
 
-const isLoggedIn = computed(() => route.path !== '/')
+const isLoggedIn = computed(() => route.path !== '/' && route.path !== '/register-instructor')
 </script>
 
 <template>

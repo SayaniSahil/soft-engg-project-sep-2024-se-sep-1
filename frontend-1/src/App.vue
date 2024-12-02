@@ -7,8 +7,8 @@ const route = useRoute();
 
 const contentWrapperClass = computed(() => {
   return {
-    'content-wrapper': route.name !== 'login', // Apply default padding class if not on Login route
-    'login-wrapper': route.name === 'login',      // Apply no padding class if on Login route
+    'content-wrapper': route.name !== 'login' && route.name !== 'register-instructor', // Apply default padding class if not on Login route
+    'login-wrapper': route.name === 'login' || route.name === 'register-instructor',      // Apply no padding class if on Login route
   };
 });
 </script>
