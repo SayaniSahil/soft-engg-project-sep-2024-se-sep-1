@@ -1,178 +1,126 @@
-# components/statistics/admin_routes.py
-
-from flask import Blueprint
-from flask_security import auth_required, roles_required
+from flask import Blueprint, jsonify, request
 from sqlalchemy import func
-from components.extensions import db, cache
+from components.extensions import db
 from components.models import (
-    Project, ProjectStudentAssignment, ProjectInstructorAssignment,
-    Milestone, MilestoneSubmission
+    Project, ProjectStudentAssignment, Milestone, MilestoneSubmission
 )
-from utils.helpers import APIResponse
 from datetime import datetime, timedelta
 
-admin_stats_bp = Blueprint('admin_statistics', _name_)
+admin_dashboard_bp = Blueprint('admin_dashboard', __name__)
 
-@admin_stats_bp.route('/admin/dashboard/statistics', methods=['GET'])
-@auth_required('token')
-@roles_required('admin')
+@admin_dashboard_bp.route('/admin/dashboard/statistics', methods=['GET'])
 def get_admin_dashboard_statistics():
     """Get statistics for admin dashboard."""
     try:
-        # Check cache
-        cache_key = 'admin_dashboard_statistics'
-        cached_stats = cache.get(cache_key)
-        if cached_stats:
-            return APIResponse.success(data=cached_stats)
-
-        # Get main statistics
+        # Calculate key statistics
         total_projects = Project.query.count()
-        total_students = db.session.query(
-            func.count(distinct(ProjectStudentAssignment.student_id))
-        ).scalar() or 0
-        
-        # Calculate completion rate across all projects
+        total_students = db.session.query(ProjectStudentAssignment.student_id).distinct().count()
+
         total_milestones = Milestone.query.count()
-        completed_milestones = db.session.query(
-            func.count(distinct(MilestoneSubmission.milestone_id))
-        ).filter(
+        completed_milestones = MilestoneSubmission.query.filter(
             MilestoneSubmission.evaluation_status == 'approved'
-        ).scalar() or 0
-        
+        ).count()
         completion_rate = (completed_milestones / total_milestones * 100) if total_milestones > 0 else 0
 
-        # Get active students (with submissions in last 7 days)
-        active_students = db.session.query(
-            func.count(distinct(MilestoneSubmission.student_id))
-        ).filter(
+        active_students = db.session.query(MilestoneSubmission.student_id).distinct().filter(
             MilestoneSubmission.submission_date >= datetime.now() - timedelta(days=7)
-        ).scalar() or 0
-
-        # Project statistics with student counts
-        projects = Project.query.all()
-        project_stats = []
-        
-        for project in projects:
-            student_count = ProjectStudentAssignment.query.filter_by(
-                project_id=project.project_id
-            ).count()
-            
-            instructor_count = ProjectInstructorAssignment.query.filter_by(
-                project_id=project.project_id
-            ).count()
-            
-            # Get project completion percentage
-            project_milestones = Milestone.query.filter_by(
-                project_id=project.project_id
-            ).count()
-            
-            completed_count = db.session.query(
-                func.count(distinct(MilestoneSubmission.milestone_id))
-            ).join(Milestone).filter(
-                Milestone.project_id == project.project_id,
-                MilestoneSubmission.evaluation_status == 'approved'
-            ).scalar() or 0
-            
-            completion_percentage = (completed_count / project_milestones * 100) if project_milestones > 0 else 0
-            
-            project_stats.append({
-                'project_id': project.project_id,
-                'title': project.title,
-                'students': student_count,
-                'instructors': instructor_count,
-                'completion_percentage': round(completion_percentage, 2)
-            })
-
-        statistics = {
-            "overview_stats": {
-                "total_projects": total_projects,
-                "active_students": active_students,
-                "total_students": total_students,
-                "completion_rate": round(completion_rate, 2)
-            },
-            "projects": project_stats
-        }
-
-        # Cache for 5 minutes
-        cache.set(cache_key, statistics, timeout=300)
-        
-        return APIResponse.success(data=statistics)
-        
-    except Exception as e:
-        current_app.logger.error(f"Error fetching admin dashboard statistics: {str(e)}")
-        return APIResponse.error(str(e))
-
-@admin_stats_bp.route('/admin/dashboard/project-stats/<int:project_id>', methods=['GET'])
-@auth_required('token')
-@roles_required('admin')
-def get_project_specific_stats(project_id):
-    """Get detailed statistics for a specific project."""
-    try:
-        project = Project.query.get(project_id)
-        if not project:
-            return APIResponse.error("Project not found", 404)
-
-        # Get project-specific statistics
-        student_count = ProjectStudentAssignment.query.filter_by(
-            project_id=project_id
         ).count()
-        
-        # Get milestone statistics
-        milestones = Milestone.query.filter_by(project_id=project_id).all()
-        milestone_stats = []
-        
-        for milestone in milestones:
-            submissions = MilestoneSubmission.query.filter_by(
-                milestone_id=milestone.milestone_id
-            ).all()
-            
-            approved = sum(1 for s in submissions if s.evaluation_status == 'approved')
-            pending = sum(1 for s in submissions if s.evaluation_status == 'pending')
-            
-            milestone_stats.append({
-                'title': milestone.title,
-                'total_submissions': len(submissions),
-                'approved': approved,
-                'pending': pending,
-                'completion_rate': (approved / student_count * 100) if student_count > 0 else 0
-            })
 
-        stats = {
-            'project_details': {
-                'title': project.title,
-                'student_count': student_count,
-                'instructor_count': ProjectInstructorAssignment.query.filter_by(
-                    project_id=project_id
-                ).count(),
-                'total_milestones': len(milestones)
-            },
-            'milestone_stats': milestone_stats,
-            'recent_activities': get_recent_activities(project_id)
+        # Prepare the response data
+        statistics = {
+            "total_projects": total_projects,
+            "total_students": total_students,
+            "active_students": active_students,
+            "completion_rate": round(completion_rate, 2)
         }
 
-        return APIResponse.success(data=stats)
-        
+        return jsonify({"success": True, "data": statistics})
+
     except Exception as e:
-        current_app.logger.error(f"Error fetching project statistics: {str(e)}")
-        return APIResponse.error(str(e))
+        return jsonify({"success": False, "error": str(e)}), 500
 
-def get_recent_activities(project_id, days=7):
-    """Get recent activities for a project."""
-    recent_submissions = MilestoneSubmission.query.join(
-        Milestone
-    ).filter(
-        Milestone.project_id == project_id,
-        MilestoneSubmission.submission_date >= datetime.now() - timedelta(days=days)
-    ).order_by(
-        MilestoneSubmission.submission_date.desc()
-    ).limit(5).all()
 
-    return [{
-        'student_id': submission.student_id,
-        'milestone_id': submission.milestone_id,
-        'status': submission.evaluation_status,
-        'date': submission.submission_date.strftime('%Y-%m-%d %H:%M')
-    } for submission in recent_submissions]
+@admin_dashboard_bp.route('/admin/dashboard/projects', methods=['GET'])
+def get_all_projects():
+    """Fetch all projects with brief details."""
+    try:
+        projects = Project.query.all()
+        project_list = [
+            {
+                "id": project.project_id,
+                "title": project.title,
+                "description": project.description,
+                "created_at": project.created_at.strftime('%Y-%m-%d')
+            } for project in projects
+        ]
+        return jsonify({"success": True, "data": {"projects": project_list}})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
-# Register blueprint in app.py
-# app.register_blueprint(admin_stats_bp, url_prefix='/api')
+
+@admin_dashboard_bp.route('/admin/dashboard/students', methods=['GET'])
+def get_all_students():
+    """Fetch all students assigned to projects."""
+    try:
+        student_assignments = ProjectStudentAssignment.query.all()
+        student_list = [
+            {
+                "student_id": assignment.student_id,
+                "project_id": assignment.project_id,
+                "assigned_date": assignment.assigned_date.strftime('%Y-%m-%d')
+            } for assignment in student_assignments
+        ]
+        return jsonify({"success": True, "data": {"students": student_list}})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_dashboard_bp.route('/admin/dashboard/milestones', methods=['GET'])
+def get_milestone_details():
+    """Fetch milestone details and their completion status."""
+    try:
+        milestones = Milestone.query.all()
+        milestone_list = [
+            {
+                "id": milestone.milestone_id,
+                "title": milestone.title,
+                "status": "Completed" if MilestoneSubmission.query.filter_by(
+                    milestone_id=milestone.milestone_id, evaluation_status='approved'
+                ).count() > 0 else "Pending"
+            } for milestone in milestones
+        ]
+        return jsonify({"success": True, "data": {"milestones": milestone_list}})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_dashboard_bp.route('/admin/dashboard/milestone_submissions', methods=['POST'])
+def filter_milestone_submissions():
+    """Filter milestone submissions by student or project."""
+    try:
+        data = request.json
+        student_id = data.get('student_id')
+        project_id = data.get('project_id')
+
+        query = MilestoneSubmission.query
+
+        if student_id:
+            query = query.filter_by(student_id=student_id)
+
+        if project_id:
+            # Join MilestoneSubmission with Milestone and filter by project_id
+            query = query.join(Milestone).filter(Milestone.project_id == project_id)
+
+        submissions = query.all()
+        submission_list = [
+            {
+                "id": submission.submission_id,
+                "milestone_id": submission.milestone_id,
+                "student_id": submission.student_id,
+                "submission_date": submission.submission_date.strftime('%Y-%m-%d'),
+                "evaluation_status": submission.evaluation_status
+            } for submission in submissions
+        ]
+        return jsonify({"success": True, "data": {"submissions": submission_list}})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

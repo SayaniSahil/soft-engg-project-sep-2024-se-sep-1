@@ -14,7 +14,7 @@ from components.student import student_bp
 from components.commit_history import commit_history_bp
 from components.llm import llm_bp
 from components.github_url import assignment_bp
-
+from components.admin_stats import admin_dashboard_bp
 
 def create_app():
     app = Flask(__name__)
@@ -33,15 +33,17 @@ def create_app():
     app.register_blueprint(commit_history_bp)
     app.register_blueprint(llm_bp)
     app.register_blueprint(assignment_bp)
-    
+    app.register_blueprint(admin_dashboard_bp)
     
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
     
     # CORS for separate servers
-    CORS(app)
     
+    CORS(app), 
+     
+
     # Initialize Flask-Caching with Redis
     cache.init_app(app)
 
