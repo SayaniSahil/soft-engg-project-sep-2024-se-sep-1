@@ -1,9 +1,9 @@
 <script setup lang="ts">
 defineProps<{
-  title: string
-  value: number | string
-  type?: 'primary' | 'success' | 'warning' | 'danger'
-}>()
+  title: string;
+  value: number | string;
+  type?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+}>();
 </script>
 
 <template>
@@ -15,3 +15,4 @@ defineProps<{
     </div>
   </div>
 </template>
+

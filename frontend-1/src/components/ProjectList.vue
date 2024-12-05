@@ -145,8 +145,7 @@
 </template>
 
 <script>
-import pieChart from '../assets/Pie-Chart-Sample.png';
-import barChart from '../assets/Bar-Chart-Sample.png';
+
 
 export default {
   props: {

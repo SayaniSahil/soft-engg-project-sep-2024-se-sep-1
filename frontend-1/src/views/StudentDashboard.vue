@@ -43,7 +43,7 @@ const logout = () => {
         </div>
 
         <div>
-          <ProgressComponent />
+          <ProgressComponent/>
         </div>
       </main>
     </div>

@@ -57,11 +57,32 @@
           <div class="col-6 text-center">
             <h5>Submission</h5>
             <!-- Submission Deadline -->
-            <div class="row justify-content-center mb-3">
-              <div class="col-auto">
-                <span class="badge deadline-badge">Submission Deadline xx/xx/xxxx 00:00 am</span>
+              <div class="row justify-content-center mb-3">
+            <div class="col-auto">
+              <span class="badge deadline-badge">Submission Deadline xx/xx/xxxx 00:00 am</span>
+              <form @submit.prevent="submitGithubUrl" class="mt-3">
+                <div class="mb-3">
+                  <label for="urlInput" class="form-label">Enter URL</label>
+                  <input
+                    type="url"
+                    class="form-control"
+                    id="urlInput"
+                    v-model="githubUrl"
+                    placeholder="https://example.com"
+                    required
+                  />
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+              <div v-if="submissionMessage" class="mt-3 alert" :class="submissionStatus ? 'alert-success' : 'alert-danger'">
+                {{ submissionMessage }}
               </div>
             </div>
+          </div>
+
+
 
           <!-- Questions Section -->
           <div class="row mb-3">
@@ -118,6 +139,7 @@ export default{
     },
     data(){
         return {
+            githubUrl: '',
             milestone: null,
             submissions: null,
         };
@@ -127,7 +149,36 @@ export default{
             event.preventDefault()
             sessionStorage.clear()
             this.$router.push('/')
+        },
+        
+        async submitGithubUrl() {
+          try {
+            const token = sessionStorage.getItem('authToken'); // Retrieve the token from session storage
+            const response = await fetch('http://localhost:5000/assignment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add token to the Authorization header
+              },
+              body: JSON.stringify({
+                github_url: this.githubUrl, // Send only the URL
+              }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || 'Failed to submit. Please try again.');
+            }
+
+            const responseData = await response.json();
+            this.submissionMessage = responseData.message || 'GitHub URL submitted successfully!';
+            this.submissionStatus = true;
+          } catch (error) {
+            this.submissionMessage = error.message || 'An error occurred. Please try again.';
+            this.submissionStatus = false;
+          }
         }
+        
     },
     created(){
         this.milestones = [
