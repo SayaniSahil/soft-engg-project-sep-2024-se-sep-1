@@ -1,21 +1,5 @@
 <template>
-  <div class="container-fluid">
-  <div v-if="!loading" class="row">
-    <!-- Sidebar -->
-    <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-      <div class="position-sticky pt-3">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <router-link class="nav-link" to="/student" active-class="active-link">Progress</router-link>
-          </li>
-          <li v-for="milestone in this.milestones" :key="milestone.id" class="nav-item">
-            <router-link class="nav-link" :to="'/student/milestones/'+milestone.id" active-class="active-link">{{ milestone.title }}</router-link>
-          </li>
-        </ul>
-      </div>
-      <div class="nav-link logout" @click="logout">Logout</div>
-    </div>
-
+  <div v-if="!loading">
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="pt-3 pb-2 mb-3 border-bottom">
@@ -90,14 +74,17 @@
       </div>
     </main>
   </div>
-</div>
 </template>
 
 <script>
 import StatisticsCard from '../components/StatisticsCard.vue'
+
 export default{
   name: 'MilestoneDetailView',
-  props: ['id'],
+  props: {
+    id: Number,
+    project_id: Number,
+  },
   components: {
       StatisticsCard
   },
@@ -115,7 +102,6 @@ export default{
         submissions: null,
         document_url:'',
         student_id: localStorage.getItem('user_id'),
-        project_id: 1,
         loading: true,
           
       };
@@ -126,7 +112,6 @@ export default{
     this.loading = true;
     this.changeMilestone();
     this.loading = false;
-    // You can add logic to fetch new data or update the view
   }
 },
   methods: {
@@ -136,7 +121,7 @@ export default{
                 this.error = "Student ID or Project ID not provided.";
                 return;
             }
-            const response = await fetch('http://localhost:5000/student/milestones/' + this.student_id, {
+            const response = await fetch('http://localhost:5000/student/milestones/' + this.student_id + '/' + this.project_id, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,12 +213,6 @@ export default{
       alert("There was an error submitting the document.");
     }
   },
-  
-  async logout(event){
-          event.preventDefault()
-          localStorage.clear()
-          this.$router.push('/')
-    },
     
       
   },

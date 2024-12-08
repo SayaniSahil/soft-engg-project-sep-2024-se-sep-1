@@ -29,7 +29,13 @@ const handleLogin = async () => {
   localStorage.setItem('role', result.role)
   localStorage.setItem('id', result.email.split('@')[0])
   localStorage.setItem('user_id', result.id)
-  router.push('/' + result.role)
+  if(result.role == "instructor"){
+    router.push('/instructor/dashboard')
+  }else if(result.role == "student"){
+    router.push('/student/dashboard/0')
+  }else{
+    router.push('/admin')
+  }
 }
 </script>
 

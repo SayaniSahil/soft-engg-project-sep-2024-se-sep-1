@@ -12,14 +12,13 @@ student_bp = Blueprint('student', __name__)
 # S001,student1@example.com,student1,password123
 # S002,student2@example.com,student2,password123
 
-@student_bp.route('/students/bulk-upload/<int:instructor_id>', methods=['POST'])
+@student_bp.route('/students/bulk-upload/<int:instructor_id>/<int:project_id>', methods=['POST'])
 @auth_required()
 @roles_accepted('Admin', 'Instructor')  # Only admin and instructor can access
-def bulk_upload_students(instructor_id):
+def bulk_upload_students(instructor_id, project_id):
     try:
-        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
         if not project: return jsonify({'error': 'Project not found'}), 404
-        project_id = project.project_id
         if 'document' not in request.files:
             return jsonify({'error': 'No file provided'}), 400
             
@@ -63,13 +62,12 @@ def bulk_upload_students(instructor_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-@student_bp.route('/students/<int:instructor_id>', methods=['GET'])
+@student_bp.route('/students/<int:instructor_id>/<int:project_id>', methods=['GET'])
 @roles_accepted('Admin', 'Instructor')  # Only admin and instructor can access
 @auth_required()
-def get_students(instructor_id):
-    project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+def get_students(instructor_id, project_id):
+    project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
     if not project: return jsonify({'error': 'Project not found'}), 404
-    project_id = project.project_id
     students = ProjectStudentAssignment.query.filter_by(project_id=project_id).all()
     if not students: return jsonify({'message': 'Students fetched successfully', 'students':[]}), 200
     students = [datastore.find_user(user_id=student.student_id) for student in students]
@@ -81,14 +79,13 @@ def get_students(instructor_id):
     return jsonify({'message': 'Students fetched successfully', 'students': students, 'total_milestones': total_milestones}), 200
 
 
-@student_bp.route('/students/<int:instructor_id>', methods=['DELETE'])
+@student_bp.route('/students/<int:instructor_id>/<int:project_id>', methods=['DELETE'])
 @roles_accepted('Admin', 'Instructor')  # Only admin and instructor can access
 @auth_required()
-def delete_student(instructor_id):
+def delete_student(instructor_id, project_id):
     try:
-        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
         if not project: return jsonify({'error': 'Project not found'}), 404
-        project_id = project.project_id
         id = request.json.get('id')
         student = datastore.find_user(user_id=id)
         if not student: return jsonify({'error': 'Student not found'}), 404

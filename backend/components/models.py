@@ -43,16 +43,18 @@ class Project(db.Model):
 class ProjectStudentAssignment(db.Model):
     __tablename__ = 'project_student_assignment'
     
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'), primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    assignment_id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     github_url = db.Column(db.String(255), nullable=True)
     assigned_date = db.Column(DateTime, default=datetime.utcnow)
 
 class ProjectInstructorAssignment(db.Model):
     __tablename__ = 'project_instructor_assignment'
     
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'), primary_key=True)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    assignment_id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     assigned_date = db.Column(DateTime, default=datetime.utcnow)
 
 class Milestone(db.Model):

@@ -2,14 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
-import InstructorDashboard from '../views/InstructorDashboard.vue'
-import StudentDashboard from '../views/StudentDashboard.vue'
 import AdminProjectStats from '../views/AdminProjectStats.vue'
 import AdminProject from '../views/AdminProject.vue'
-import MilestoneDetailView from '../views/MilestoneDetailView.vue'
-import InstructorStudentView from '../views/InstructorStudentView.vue'
-import InstructorMilestoneView from '../views/InstructorMilestoneView.vue'
-import InstructorCommitHistory from '../views/InstructorCommitHistory.vue'
+import Instructor from '../views/Instructor.vue'
+import Student from '../views/Student.vue'
 
 const routes = [
     {
@@ -38,35 +34,14 @@ const routes = [
       component: AdminProject
     },
     {
-      path: '/instructor',
+      path: '/instructor/:type',
       name: 'instructor',
-      component: InstructorDashboard
+      component: Instructor
     },
     {
-      path: '/instructor/milestones',
-      name: 'instructor-milestones',
-      component: InstructorMilestoneView
-    },
-    {
-      path: '/instructor/students',
-      name: 'instructor-students',
-      component: InstructorStudentView
-    },
-    {
-      path: '/instructor/github',
-      name: 'instructor-github',
-      component: InstructorCommitHistory
-    },
-    {
-      path: '/student',
+      path: '/student/:type/:id',
       name: 'student',
-      component: StudentDashboard
-    },
-    {
-      path: '/student/milestones/:id',
-      name: 'milestone-detail',
-      component: MilestoneDetailView,
-      props: true
+      component: Student
     },
     {
       path: '/:pathMatch(.*)*', // Catch-all route for undefined paths
@@ -100,13 +75,27 @@ router.beforeEach((to, from, next) => {
 
   if (path.includes("instructor") && role !== 'instructor') {
     // Wrong dashboard for role
+    if(role === 'student'){
+      next({ name: 'student', params: { type: 'dashboard', id: 0 } })
+    }else{
+      next({ name: role === 'admin' ? 'admin' : 'login' })
+    }
     next({ name: role === 'student' ? 'student' : role === 'admin' ? 'admin' : 'login' })
   } else if (path.includes("student") && role !== 'student') {
     // Wrong dashboard for role
-    next({ name: role === 'instructor' ? 'instructor' : role === 'admin' ? 'admin' : 'login' })
+    if(role === 'instructor'){
+      next({ name: 'instructor', params: { type: 'dashboard' } })
+    }else{
+      next({ name: role === 'admin' ? 'admin' : 'login' })
+    }
   } else if (path.includes("admin") && role !== 'admin') {
     // Wrong dashboard for role
-    next({ name: role === 'student' ? 'student' : role === 'instructor' ? 'instructor' : 'login' })
+    if(role === 'instructor'){
+      next({ name: 'instructor', params: { type: 'dashboard' } })
+    }
+    else{
+      next({ name: 'student', params: { type: 'dashboard', id: 0 } })
+    }
   } else {
     // Continue to route
     next()

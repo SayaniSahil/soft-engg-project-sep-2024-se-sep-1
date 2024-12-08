@@ -8,13 +8,13 @@ import json
 
 milestone_bp = Blueprint('milestones', __name__)
 
-@milestone_bp.route('/instructor/milestones/<int:instructor_id>', methods=['GET'])
+@milestone_bp.route('/instructor/milestones/<int:instructor_id>/<int:project_id>', methods=['GET'])
 @auth_required('token')
-def get_instructor_milestones(instructor_id: int):
+def get_instructor_milestones(instructor_id, project_id):
     """Get all milestones for a specific project."""
 
     # Verify project exists
-    project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+    project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
     if not project: return jsonify({"error": "Project not found"}), 404
     project_id = project.project_id
 
@@ -33,14 +33,12 @@ def get_instructor_milestones(instructor_id: int):
 
     return jsonify({"message": "Milestones retrieved successfully", "milestones": response_data}), 200
 
-@milestone_bp.route('/student/milestones/<int:student_id>', methods=['GET'])
+@milestone_bp.route('/student/milestones/<int:student_id>/<int:project_id>', methods=['GET'])
 @auth_required('token')
-def get_student_milestones(student_id):
+def get_student_milestones(student_id, project_id):
     # Verify project exists
-    project = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
+    project = ProjectStudentAssignment.query.filter_by(student_id=student_id, project_id=project_id).first()
     if not project: return jsonify({"message": "Project not found"}), 404
-    
-    project_id = project.project_id
 
     # Get all milestones for the project
     milestones = Milestone.query.filter_by(project_id=project_id).order_by(Milestone.start_date).all()

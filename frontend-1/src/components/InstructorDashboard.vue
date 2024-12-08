@@ -5,6 +5,10 @@ import Chart from 'chart.js/auto';
 import StatisticsCard from '../components/StatisticsCard.vue'
 import Statistics from '../components/Statistics.vue'
 
+const props = defineProps({
+  project_id: Number,
+});
+
 const students = ref([
   { id: 1, name: 'Student 1', progress: 75 },
   { id: 2, name: 'Student 2', progress: 45 },
@@ -19,12 +23,6 @@ const milestones = ref([
   { id: 5, name: 'Milestone 4', status: 'overdue' }
 ])
 
-const router = useRouter()
-const logout = () => {
-  localStorage.clear()
-  router.push('/')
-}
-
 // Refs for holding API data
 const total_milestones = ref(0);
 const total_students = ref(0);
@@ -38,7 +36,7 @@ const stats = ref({
 const fetchChartData = async () => {
   try {
     // Fetch project data
-    const projectResponse = await fetch(`http://localhost:5000/projects/statistics/` + localStorage.getItem('user_id'),{
+    const projectResponse = await fetch(`http://localhost:5000/projects/statistics/` + localStorage.getItem('user_id') + '/' + props.project_id,{
       headers: {
         'Authentication-Token': `${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
@@ -151,30 +149,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-        <div class="position-sticky pt-3">
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor" active-class="active-link">Statistics</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/milestones" active-class="active-link">Milestones</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/students" active-class="active-link">Students</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/github" active-class="active-link">Github History</router-link>
-            </li>
-          </ul>
-        </div>
-        <div class="nav-link logout" @click="logout">Logout</div>
-      </div>
-
-      <!-- Main content -->
+  <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="pt-3 pb-2 mb-3 border-bottom">
           <h1>Instructor Dashboard</h1>
@@ -209,6 +184,4 @@ onMounted(() => {
           </div>
         </div>
       </main>
-    </div>
-  </div>
 </template>

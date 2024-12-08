@@ -31,7 +31,7 @@
             <p>Error: {{ error }}</p>
         </div>
         <div v-else-if="require_url">
-            <form>
+            <form v-if="this.role == 'student'">
                 <label for="url">Enter the URL of the repository:</label>
                 <input type="text" id="url" name="url" v-model="url" required>
                 <button @click.prevent="uploadURL">Submit</button>
@@ -61,6 +61,7 @@
 export default {
     props: {
         student_id: Number,
+        project_id: Number,
     },
     data() {
         return {
@@ -70,6 +71,7 @@ export default {
             error: null,
             require_url: false,
             url: "",
+            role : localStorage.getItem('role'),
         };
     },
     watch: {
@@ -92,7 +94,7 @@ export default {
                 this.error = "Student ID not provided.";
                 return;
             }
-            const response = await fetch('http://localhost:5000/student/milestones/' + this.student_id, {
+            const response = await fetch('http://localhost:5000/student/milestones/' + this.student_id + '/' + this.project_id, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +122,7 @@ export default {
             try {
                 // Adjusted API call to pass `studentId` dynamically
                 const response = await fetch(
-                    `http://127.0.0.1:5000/commit_history/` + this.student_id,
+                    `http://127.0.0.1:5000/commit_history/` + this.student_id + '/' + this.project_id,
                     {
                         headers: {
                         "Content-Type": "application/json",
@@ -153,7 +155,7 @@ export default {
             }
         },
         async uploadURL() {
-            const response = await fetch('http://localhost:5000/commit_history/' + this.student_id, {
+            const response = await fetch('http://localhost:5000/commit_history/' + this.student_id + '/' + this.project_id, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

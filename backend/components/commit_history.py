@@ -55,16 +55,15 @@ def fetch_commit_history(github_url):
         return None
 
 # API to get commit history for the current student
-@commit_history_bp.route('/commit_history/<int:student_id>', methods=['GET'])
+@commit_history_bp.route('/commit_history/<int:student_id>/<int:project_id>', methods=['GET'])
 @auth_required('token')  # Ensures the user is authenticated
-def get_commit_history(student_id):
+def get_commit_history(student_id, project_id):
     try:
         print(f"Fetching project for Student ID: {student_id}")
 
         # Fetch project ID and GitHub URL for the given student_id
-        project = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
-
-        project_id = project.project_id
+        project = ProjectStudentAssignment.query.filter_by(student_id=student_id, project_id=project_id).first()
+        if not project: return jsonify({"error": "Project not found"}), 404
         github_url = project.github_url
 
         if not github_url:
@@ -92,14 +91,14 @@ def get_commit_history(student_id):
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 
-@commit_history_bp.route('/commit_history/<int:student_id>', methods=['POST'])
+@commit_history_bp.route('/commit_history/<int:student_id>/<int:project_id>', methods=['POST'])
 @auth_required('token')
-def uploadURL(student_id):
+def uploadURL(student_id, project_id):
     try:
         print(f"Fetching project for Student ID: {student_id}")
 
         # Fetch project ID and GitHub URL for the given student_id
-        project = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
+        project = ProjectStudentAssignment.query.filter_by(student_id=student_id, project_id=project_id).first()
         if not project:
             return jsonify({"error": "Project not found"}), 404
         

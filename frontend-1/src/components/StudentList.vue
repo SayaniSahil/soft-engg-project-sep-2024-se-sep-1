@@ -107,7 +107,7 @@ import ProgressComponent from './ProgressComponent.vue';
             event.preventDefault();
             let form = document.getElementById('add_student');
             let formData = new FormData(form);
-            const response = await fetch('http://localhost:5000/students/bulk-upload/' + localStorage.getItem('user_id'), {
+            const response = await fetch('http://localhost:5000/students/bulk-upload/' + localStorage.getItem('user_id') + '/' + this.project_id, {
                 method: 'POST',
                 headers: {
                     'Authentication-Token': localStorage.getItem('token'),
@@ -123,7 +123,7 @@ import ProgressComponent from './ProgressComponent.vue';
       },
       async deleteStudent(event) {
         event.preventDefault();
-        const response = await fetch('http://localhost:5000/students/' + localStorage.getItem('user_id'), {
+        const response = await fetch('http://localhost:5000/students/' + localStorage.getItem('user_id') + '/' + this.project_id, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

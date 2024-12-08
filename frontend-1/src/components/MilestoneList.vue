@@ -189,6 +189,7 @@
 export default {
   props: {
     milestones: Array,
+    project_id: Number,
   },
   data() {
     return {
@@ -219,7 +220,7 @@ export default {
       this.closeModal();
       //console.log(this.problemStatement, this.milestoneCount)
     // Call the llm API
-    let response = await fetch('http://localhost:5000/milestone/' + localStorage.getItem("user_id"), {
+    let response = await fetch('http://localhost:5000/milestone/' + localStorage.getItem("user_id") + '/' + this.project_id, {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',
@@ -317,12 +318,6 @@ export default {
         alert('Error deleting milestone');
         console.error(error);
       }
-    },
-    async logout(event) {
-      event.preventDefault();
-      // Clear session storage and redirect to login page
-      localStorage.clear();
-      this.$router.push('/');
     },
   },
 };

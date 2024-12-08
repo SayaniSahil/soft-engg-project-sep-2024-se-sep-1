@@ -80,18 +80,6 @@ def get_projects():
 
     return jsonify({"projects": project_list}), 200
 
-# Route to read (get) a single project by ID
-@project_bp.route('/projects/<int:project_id>', methods=['GET'])
-@auth_required()
-def get_project(project_id):
-    project = Project.query.get_or_404(project_id)
-    return jsonify({
-        "project_id": project.project_id,
-        "title": project.title,
-        "description": project.description,
-        "created_at": project.created_at
-    }), 200
-
 # Route to update a project
 @project_bp.route('/projects/<int:project_id>', methods=['PUT'])
 @auth_required()
@@ -169,11 +157,11 @@ def delete_project(project_id):
 
     return jsonify({"message": "Project deleted successfully"}), 200
 
-@project_bp.route('/projects/statistics/<int:instructor_id>', methods=['GET'])
+@project_bp.route('/projects/statistics/<int:instructor_id>/<int:project_id>', methods=['GET'])
 @auth_required()
 @roles_accepted('Admin', 'Instructor')
-def get_project_statistics(instructor_id):
-    projects = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+def get_project_statistics(instructor_id, project_id):
+    projects = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
     if not projects: return jsonify({"error": "No projects found"}), 404
     # Total milestones
     total_milestones = Milestone.query.filter_by(project_id=projects.project_id).count()
@@ -298,3 +286,33 @@ def get_project_statistics_1(project_id):
         "buckets": buckets,
         "milestone_submission_stats": milestone_submission_stats
     }), 200
+    
+@project_bp.route('/projects/<int:instructor_id>', methods=['GET'])
+@auth_required()
+@roles_accepted('Admin', 'Instructor')
+def get_projects_by_instructor(instructor_id):
+    projects = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).all()
+    if not projects: return jsonify({"error": "No projects found"}), 404
+    project_list = []
+    for project in projects:
+        project = Project.query.get(project.project_id)
+        project_list.append({
+            "project_id": project.project_id,
+            "title": project.title,
+        })
+    return jsonify({"projects": project_list}), 200
+
+@project_bp.route('/student/projects/<int:student_id>', methods=['GET'])
+@auth_required()
+@roles_accepted('Admin', 'Student')
+def get_projects_by_student(student_id):
+    projects = ProjectStudentAssignment.query.filter_by(student_id=student_id).all()
+    if not projects: return jsonify({"error": "No projects found"}), 404
+    project_list = []
+    for project in projects:
+        project = Project.query.get(project.project_id)
+        project_list.append({
+            "project_id": project.project_id,
+            "title": project.title,
+        })
+    return jsonify({"projects": project_list}), 200

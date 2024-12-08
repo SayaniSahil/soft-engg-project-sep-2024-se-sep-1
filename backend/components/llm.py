@@ -144,8 +144,8 @@ def create_llm_chain(vectorstore):
 
 
 
-@llm_bp.route('/ask/<int:instructor_id>', methods=['POST'])
-def ask_question(instructor_id):
+@llm_bp.route('/ask/<int:instructor_id>/<int:project_id>', methods=['POST'])
+def ask_question(instructor_id,project_id):
     try:
         # Ensure a file and question are provided
         # if 'file' not in request.files or 'question' not in request.form:
@@ -183,9 +183,8 @@ def ask_question(instructor_id):
         # Dont store the summary in the chat history
         if user_question == "What is the summary of the document ?": return jsonify({'response': response}), 200
         # Save the chat history
-        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
         if not project: return jsonify({"message": "Project not found"}), 404
-        project_id = project.project_id
         
         chat_history = ChatHistory(project_id=project_id, instructor_id=instructor_id, message_text=user_question + "<END>" + response)
         db.session.add(chat_history)
@@ -249,8 +248,8 @@ def generate_milestone(vectorstore):
 
 
 
-@llm_bp.route('/milestone/<int:instructor_id>', methods=['POST'])
-def generate_milestones(instructor_id):
+@llm_bp.route('/milestone/<int:instructor_id>/<int:project_id>', methods=['POST'])
+def generate_milestones(instructor_id, project_id):
     try:
         DELIMITER = "END"
         body = request.get_json()
@@ -282,7 +281,7 @@ def generate_milestones(instructor_id):
             descriptions.append(temp[1].split('\n')[0])
         
         # Check if Project Document milestone exists
-        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+        project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
         if not project: return jsonify({"message": "Project not found"}), 404
         project_id = project.project_id
         
@@ -305,11 +304,10 @@ def generate_milestones(instructor_id):
         return jsonify({'error': str(e)}), 500
     
 
-@llm_bp.route('/chat/<int:instructor_id>', methods=['GET'])
-def get_chat_history(instructor_id):
-    project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+@llm_bp.route('/chat/<int:instructor_id>/<int:project_id>', methods=['GET'])
+def get_chat_history(instructor_id, project_id):
+    project = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id, project_id=project_id).first()
     if not project: return jsonify({"message": "Project not found"}), 404
-    project_id = project.project_id
     
     chat_history = ChatHistory.query.filter_by(instructor_id=instructor_id, project_id=project_id).all()
     print(chat_history)

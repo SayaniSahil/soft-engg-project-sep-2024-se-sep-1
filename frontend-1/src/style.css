@@ -206,6 +206,25 @@ body {
   border-left: 5px solid #6157e8; /* Vertical bar on the left */
 }
 
+/*
+  Stylize dropdowns
+*/
+.dropdown-menu {
+  background-color: #f8f9fa; /* Light background for dropdown */
+  border-color: #6157e8; /* Remove border */
+  width: 100%; /* Full width */
+  z-index: 1000; /* Make sure the dropdown stays on top */
+}
+
+.dropdown-item{
+  margin-bottom: 5px; /* Adjust the space as needed */
+}
+
+.dropdown-item:hover {
+  background-color: #e0dcec; /* Light background on hover */
+  color: #6157e8; /* Change color on hover */
+}
+
 .app-name {
   font-size: 1.2rem;
   font-weight: bold;

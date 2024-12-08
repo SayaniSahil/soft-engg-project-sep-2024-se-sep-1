@@ -1,26 +1,4 @@
 <template>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-        <div class="position-sticky pt-3">
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor" active-class="active-link">Statistics</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/milestones" active-class="active-link">Milestones</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/students" active-class="active-link">Students</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/instructor/github" active-class="active-link">Github History</router-link>
-            </li>
-          </ul>
-        </div>
-        <div class="nav-link logout" @click="logout">Logout</div>
-      </div>
 
       <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -31,8 +9,6 @@
         <!-- Milestones -->
         <MilestoneList :milestones="this.milestones" :project_id="this.project_id" @milestones-generated="fetchMilestones"/>
       </main>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -44,6 +20,9 @@ import MilestoneList from '../components/MilestoneList.vue'
 export default {
   components: {
     MilestoneList
+  },
+  props: {
+    project_id: Number
   },
   data(){
     return {
@@ -60,12 +39,11 @@ export default {
       { id: 2, name: 'Student 2', progress: 45 },
       { id: 3, name: 'Student 3', progress: 90 }
     ],
-    project_id: 1,
   }
 },
   methods: {
     async fetchMilestones() {
-      const response = await fetch('http://localhost:5000/instructor/milestones/' + localStorage.getItem('user_id'), {
+      const response = await fetch('http://localhost:5000/instructor/milestones/' + localStorage.getItem('user_id') + '/' + this.project_id, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -85,10 +63,6 @@ export default {
       this.milestones = this.milestones.slice(1).reverse();
       this.milestones.unshift(temp);
     },
-    logout() {
-      localStorage.clear()
-      router.push('/')
-    }
   },
   async created() {
     await this.fetchMilestones()
