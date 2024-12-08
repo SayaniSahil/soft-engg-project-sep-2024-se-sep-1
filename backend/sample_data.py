@@ -57,8 +57,7 @@ with app.app_context():
         project_student_assignments.append(
             ProjectStudentAssignment(
                 project_id=i,  # Match student index `i` with project ID `i`
-                student_id=student_id,
-                github_url=f"https://github.com/student{i}/project{i}"  # Each student has a project with the same ID
+                student_id=student_id
             )
         )
 
@@ -71,13 +70,8 @@ with app.app_context():
     project_instructor_assignments = []
     for i in range(1, 6):
         instructor_id = datastore.find_user(email=f"instructor{i}@gmail.com").user_id
-        for j in range(1, 6):
-            project_instructor_assignments.append(
-                ProjectInstructorAssignment(
-                    project_id=j,
-                    instructor_id=instructor_id
-                )
-            )
+        assignment = ProjectInstructorAssignment(project_id=i,instructor_id=instructor_id)
+        project_instructor_assignments.append(assignment)
     db.session.add_all(project_instructor_assignments)
     db.session.commit()
 
@@ -128,7 +122,7 @@ with app.app_context():
                 ChatHistory(
                     project_id=j,
                     instructor_id=instructor_id,
-                    message_text=f"Message {j} for Project {j} by Instructor {i}",
+                    message_text=f"Message {j} for Project {j} by Instructor {i}<END>Reply {j} for Project {j}",
                 )
             )
     db.session.add_all(chat_histories)

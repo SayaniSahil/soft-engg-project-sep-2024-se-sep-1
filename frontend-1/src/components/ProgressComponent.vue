@@ -43,7 +43,7 @@
         <div v-else>
             <div v-for="(commit, index) in commits" :key="index" class="mb-3">
                 <div class="d-flex align-items-center">
-                    <div class="circle commit-circle"></div>
+                    <div :class="['circle', 'commit-circle', index === 0 ? 'commit-circle-0' : '']"></div>
                     <div>
                         <p><strong>Author:</strong> {{ commit.author_name }}</p>
                         <p><strong>Timestamp:</strong> {{ commit.timestamp }}</p>
@@ -69,6 +69,7 @@ export default {
             loading: false,
             error: null,
             require_url: false,
+            url: "",
         };
     },
     watch: {
@@ -128,15 +129,16 @@ export default {
 
                     }
                 );
-
-                if (!response.ok) {
-                    if('URL' in response.error){
-                        this.require_url = true;
-                    }
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
                 const data = await response.json();
+                //console.log(data);
+                if (!response.ok) {
+                    if(data.error.includes('URL')){
+                        this.require_url = true;
+                        //console.log("URL not provided");
+                    }
+                    //throw new Error(`HTTP error! Status: ${response.status}`);
+                    return;
+                }
 
                 // Validate the response format
                 if (!data.commit_history || !Array.isArray(data.commit_history)) {
@@ -165,6 +167,7 @@ export default {
                 return;
             }
             this.require_url = false;
+            await this.fetchCommitHistory();
         },
         positionLine() {
             const firstBox = this.$el.querySelector(".first");

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, abort
-from flask_security import auth_required, roles_required
+from flask_security import auth_required, roles_required, roles_accepted
 from datetime import datetime
-from components.models import Project, db, ProjectInstructorAssignment, ProjectStudentAssignment
+from components.models import Project, db, ProjectInstructorAssignment, ProjectStudentAssignment, Milestone, MilestoneSubmission
 from components.extensions import datastore
 
 # Define a Blueprint for project operations
@@ -168,3 +168,133 @@ def delete_project(project_id):
     db.session.commit()
 
     return jsonify({"message": "Project deleted successfully"}), 200
+
+@project_bp.route('/projects/statistics/<int:instructor_id>', methods=['GET'])
+@auth_required()
+@roles_accepted('Admin', 'Instructor')
+def get_project_statistics(instructor_id):
+    projects = ProjectInstructorAssignment.query.filter_by(instructor_id=instructor_id).first()
+    if not projects: return jsonify({"error": "No projects found"}), 404
+    # Total milestones
+    total_milestones = Milestone.query.filter_by(project_id=projects.project_id).count()
+    # Total students
+    total_students = ProjectStudentAssignment.query.filter_by(project_id=projects.project_id).count()
+    # All completetion rate
+    completion_rates = []
+    students = ProjectStudentAssignment.query.filter_by(project_id=projects.project_id).all()
+    students = [student.student_id for student in students]
+    milestones = Milestone.query.filter_by(project_id=projects.project_id).all()
+    milestones = [milestone.milestone_id for milestone in milestones]
+    for student in students:
+        submissions = MilestoneSubmission.query.filter_by(student_id=student).all()
+        count = 0
+        for submission in submissions:
+            if submission.milestone_id in milestones:
+                count += 1
+        completion_rates.append(round(count/total_milestones, 2) * 100)
+    # Average completion rate
+    average_completion_rate = sum(completion_rates) / len(completion_rates)
+    # Make buckets for completion rates
+    buckets = [0, 0, 0, 0, 0]
+    for rate in completion_rates:
+        if rate < 20:
+            buckets[0] += 1
+        elif rate < 40:
+            buckets[1] += 1
+        elif rate < 60:
+            buckets[2] += 1
+        elif rate < 80:
+            buckets[3] += 1
+        else:
+            buckets[4] += 1
+    # Submission made before, after, on deadline
+        on_time_submissions = 0
+        late_submissions = 0
+        early_submissions = 0
+        for student in students:
+            submissions = MilestoneSubmission.query.filter_by(student_id=student).all()
+            for submission in submissions:
+                if submission.milestone_id not in milestones: continue
+                milestone = Milestone.query.get(submission.milestone_id)
+                if not milestone: continue
+                submission.submission_date = submission.submission_date.date()
+                if submission.submission_date <= milestone.end_date:
+                    on_time_submissions += 1
+                else:
+                    late_submissions += 1
+                if submission.submission_date < milestone.start_date:
+                    early_submissions += 1
+        milestone_submission_stats = [on_time_submissions, late_submissions, early_submissions]
+    return jsonify({
+        "total_milestones": total_milestones,
+        "total_students": total_students,
+        "average_completion_rate": average_completion_rate,
+        "buckets": buckets,
+        "milestone_submission_stats": milestone_submission_stats
+    }), 200
+    
+@project_bp.route('/projects/statistics-1/<int:project_id>', methods=['GET'])
+@auth_required()
+@roles_accepted('Admin', 'Instructor')
+def get_project_statistics_1(project_id):
+    projects = Project.query.filter_by(project_id=project_id).first()
+    if not projects: return jsonify({"error": "No projects found"}), 404
+    # Total milestones
+    total_milestones = Milestone.query.filter_by(project_id=projects.project_id).count()
+    # Total students
+    total_students = ProjectStudentAssignment.query.filter_by(project_id=projects.project_id).count()
+    # All completetion rate
+    completion_rates = []
+    students = ProjectStudentAssignment.query.filter_by(project_id=projects.project_id).all()
+    students = [student.student_id for student in students]
+    milestones = Milestone.query.filter_by(project_id=projects.project_id).all()
+    milestones = [milestone.milestone_id for milestone in milestones]
+    for student in students:
+        submissions = MilestoneSubmission.query.filter_by(student_id=student).all()
+        count = 0
+        for submission in submissions:
+            if submission.milestone_id in milestones:
+                count += 1
+        completion_rates.append(round(count/total_milestones, 2) * 100)
+    # Average completion rate
+    average_completion_rate = sum(completion_rates) / len(completion_rates)
+    # Make buckets for completion rates
+    buckets = [0, 0, 0, 0, 0]
+    for rate in completion_rates:
+        if rate < 20:
+            buckets[0] += 1
+        elif rate < 40:
+            buckets[1] += 1
+        elif rate < 60:
+            buckets[2] += 1
+        elif rate < 80:
+            buckets[3] += 1
+        else:
+            buckets[4] += 1
+    # Submission made before, after, on deadline
+        on_time_submissions = 0
+        late_submissions = 0
+        early_submissions = 0
+        for student in students:
+            submissions = MilestoneSubmission.query.filter_by(student_id=student).all()
+            for submission in submissions:
+                if submission.milestone_id not in milestones: continue
+                milestone = Milestone.query.get(submission.milestone_id)
+                if not milestone: continue
+                #print(type(submission.submission_date))
+                if isinstance(submission.submission_date, datetime):
+                    submission.submission_date = submission.submission_date.date()
+                if submission.submission_date <= milestone.end_date:
+                    on_time_submissions += 1
+                else:
+                    late_submissions += 1
+                if submission.submission_date < milestone.start_date:
+                    early_submissions += 1
+        milestone_submission_stats = [on_time_submissions, late_submissions, early_submissions]
+    return jsonify({
+        "total_milestones": total_milestones,
+        "total_students": total_students,
+        "average_completion_rate": average_completion_rate,
+        "buckets": buckets,
+        "milestone_submission_stats": milestone_submission_stats
+    }), 200

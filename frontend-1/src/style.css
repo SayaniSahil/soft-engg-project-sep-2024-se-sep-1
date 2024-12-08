@@ -235,14 +235,10 @@ display: inline-block;
 margin-right: 10px;
 border: 3px solid #d88549;
 }
-.commit .commit-circle:nth {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-display: inline-block;
-margin-right: 10px;
-background-color: #d88549;
+.commit-circle-0{
+  background-color: #d88549 !important;
 }
+
 .milestones .circle {
 width: 40px;
 height: 40px;
@@ -420,4 +416,16 @@ img {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+#dailySubmissionChart, #milestonePieChart, #milestoneDensityChart, #submissionDistribution, #milestoneCompletionRate {
+  width: 100%; /* Full width of their container */
+  height: 400px !important; /* Set a fixed height for both charts */
+  display: flex;
+  justify-content: center;
+}
+
+#submissionDistribution-1, #milestoneCompletionRate-1 {
+  height: 400px !important; /* Set a fixed height for both charts */
+  margin: 0 auto;
 }

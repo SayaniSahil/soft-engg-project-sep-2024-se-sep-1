@@ -318,6 +318,12 @@ export default {
         console.error(error);
       }
     },
+    async logout(event) {
+      event.preventDefault();
+      // Clear session storage and redirect to login page
+      localStorage.clear();
+      this.$router.push('/');
+    },
   },
 };
 </script>

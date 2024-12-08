@@ -103,7 +103,7 @@ export default{
   },
   data(){
       return {
-          milestone: {"id":1,"title":"Project Document","status":"completed"},
+          milestone: {},
           title: '',
         description: '',
         weightage: 0,
@@ -148,7 +148,6 @@ export default{
                 this.error = result.error;
                 return;
             }
-            console.log(result);
             this.milestones = result.milestones;
             // Make sure project document is the first milestone
             this.milestones = this.milestones.sort((a, b) => a.title === 'Project Document' ? -1 : 1);
@@ -213,7 +212,6 @@ export default{
       const result = await response.json();
 
       if (response.ok) {
-        console.log("Document link submitted:", result);
         this.status = 'completed';
         for (let i = 0; i < this.milestones.length; i++) {
             if (this.milestones[i].id == this.id) {
@@ -240,8 +238,8 @@ export default{
       
   },
   async created(){
-      await this.fetchMilestoneStatus()
-      console.log("Yes I am here")
+      await this.fetchMilestoneStatus();
+      this.changeMilestone();
   }
   }
 </script>

@@ -19,8 +19,6 @@ def fetch_commit_history(github_url):
     #     print("Error: GitHub token is not set in the environment variables.")
     #     return None
 
-    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
-
     # Extract username and repo name from GitHub URL
     try:
         parts = github_url.strip('/').split('/')
@@ -34,7 +32,7 @@ def fetch_commit_history(github_url):
     print(f"GitHub API URL: {api_url}")
 
     # Make the API request
-    response = requests.get(api_url, headers=headers)
+    response = requests.get(api_url)
     print(f"GitHub API Response Status Code: {response.status_code}")
 
     if response.status_code == 200:
@@ -66,8 +64,8 @@ def get_commit_history(student_id):
         # Fetch project ID and GitHub URL for the given student_id
         project = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
 
-        project_id = project["project_id"]
-        github_url = project["github_url"]
+        project_id = project.project_id
+        github_url = project.github_url
 
         if not github_url:
             print(f"No GitHub URL found for Student ID: {student_id}")

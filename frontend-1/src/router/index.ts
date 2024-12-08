@@ -75,7 +75,7 @@ const routes = [
 ]
 
 const baseUrl = '/';
-console.log('BASE_URL:', baseUrl);
+//console.log('BASE_URL:', baseUrl);
 
 const router = createRouter({
   history: createWebHistory(baseUrl),
@@ -87,7 +87,7 @@ router.beforeEach((to, from, next) => {
   const name = localStorage.getItem('username')
   const id = localStorage.getItem('id')
 
-  console.log(to.name, role, name, id)
+  //console.log(to.name, role, name, id)
   if((!role || !name || !id) && (to.name !== 'login' && to.name !== 'register-instructor')){
     localStorage.clear()
     next({ name: 'login' })

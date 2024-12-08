@@ -6,11 +6,15 @@ import StatisticsCard from '../components/StatisticsCard.vue'
 import Statistics from '../components/Statistics.vue'
 // References for statistics
 const stats = ref({
-  totalProjects: 0,
-  activeStudents: 0,
-  completionRate: '0%',
-  totalStudents: 0,
+  daily_submissions: [],
+  milestone_submission_stats: [],
+  milestone_density: [],
 });
+
+let total_projects = ref(0);
+let milestones_due_this_week = ref(0);
+let milestones_completed_this_week = ref(0);
+let total_students = ref(0);
 
 const router = useRouter()
 const logout = () => {
@@ -21,19 +25,25 @@ const logout = () => {
 // Fetch data for Completion Rate Chart
 const fetchCompletionRate = async () => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/admin/dashboard/statistics', {
+    const response = await fetch('http://localhost:5000/admin/dashboard/statistics', {
       headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+        'Authentication-Token': `${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
       },
     });
     if (response.ok) {
       const { data } = await response.json();
-      stats.value = {
-        ...stats.value,
-        completionRate: `${data.completion_rate}%`,
-      };
-      renderCompletionRateChart(data.completion_rate);
+      total_projects.value = data.total_projects;
+      milestones_due_this_week.value = data.milestones_due_this_week;
+      milestones_completed_this_week.value = data.milestones_completed_this_week;
+      total_students.value = data.total_students;
+      stats.daily_submissions = data.daily_submissions;
+      stats.milestone_submission_stats = data.milestone_submission_stats;
+      stats.milestone_density = data.milestone_density;
+      renderDailySubmissionChart(stats.daily_submissions);
+      renderMilestonePieChart(stats.milestone_submission_stats);
+      renderMilestoneDensity(stats.milestone_density);
+      console.log(data);
     } else {
       console.error('Failed to fetch completion rate statistics.', await response.text());
     }
@@ -42,173 +52,135 @@ const fetchCompletionRate = async () => {
   }
 };
 
-// Fetch data for Projects Chart
-const fetchProjectsData = async () => {
-  try {
-    const response = await fetch('http://127.0.0.1:5000/admin/dashboard/projects', {
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      const { data } = await response.json();
-      renderProjectsChart(data.projects.length); // Assume number of projects as data for visualization
-    } else {
-      console.error('Failed to fetch projects data.', await response.text());
-    }
-  } catch (error) {
-    console.error('Error fetching projects data:', error);
-  }
-};
-
-// Fetch data for Students Chart
-const fetchStudentsData = async () => {
-  try {
-    const response = await fetch('http://127.0.0.1:5000/admin/dashboard/students', {
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      const { data } = await response.json();
-      renderStudentsChart(data.students.length); // Number of students assigned
-    } else {
-      console.error('Failed to fetch students data.', await response.text());
-    }
-  } catch (error) {
-    console.error('Error fetching students data:', error);
-  }
-};
-
-// Fetch data for Milestone Chart
-const fetchMilestonesData = async () => {
-  try {
-    const response = await fetch('http://127.0.0.1:5000/admin/dashboard/milestones', {
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      const { data } = await response.json();
-      const completed = data.milestones.filter(m => m.status === 'Completed').length;
-      renderMilestonesChart(completed, data.milestones.length - completed);
-    } else {
-      console.error('Failed to fetch milestones data.', await response.text());
-    }
-  } catch (error) {
-    console.error('Error fetching milestones data:', error);
-  }
-};
-
-// Render Completion Rate Chart
-const renderCompletionRateChart = (completionRate: number) => {
-  const ctx = document.getElementById('completionRateChart') as HTMLCanvasElement;
+const renderDailySubmissionChart = (daily_submissions: any) => {
+  const ctx = document.getElementById('dailySubmissionChart') as HTMLCanvasElement;
   if (!ctx) return;
 
   new Chart(ctx, {
-    type: 'doughnut',
+    type: 'line',
     data: {
-      labels: ['Completed', 'Pending'],
+      labels: daily_submissions.map((s: any) => s.date),
       datasets: [
         {
-          data: [completionRate, 100 - completionRate],
-          backgroundColor: ['#4caf50', '#f44336'],
+          label: 'Submissions',
+          data: daily_submissions.map((s: any) => s.count),
+          borderColor: '#2196f3',
+          fill: false,
         },
       ],
     },
     options: {
-      plugins: {
-        legend: {
-          position: 'bottom',
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Date',
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Submissions',
+          },
         },
       },
-    },
-  });
-};
-
-// Render Projects Chart
-const renderProjectsChart = (totalProjects: number) => {
-  const ctx = document.getElementById('projectsChart') as HTMLCanvasElement;
-  if (!ctx) return;
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Projects'],
-      datasets: [
-        {
-          label: 'Total Projects',
-          data: [totalProjects],
-          backgroundColor: ['#42A5F5'],
-        },
-      ],
-    },
-    options: {
       plugins: {
         legend: { display: false },
+        title: {
+        display: true,
+        text: 'Daily Submission Stats',
+        font: {
+            size: 16,
+            weight: 'bold',
+          },
+      }
       },
     },
   });
 };
 
-// Render Students Chart
-const renderStudentsChart = (totalStudents: number) => {
-  const ctx = document.getElementById('studentsChart') as HTMLCanvasElement;
-  if (!ctx) return;
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Students'],
-      datasets: [
-        {
-          label: 'Total Students',
-          data: [totalStudents],
-          backgroundColor: ['#66BB6A'],
-        },
-      ],
-    },
-    options: {
-      plugins: {
-        legend: { display: false },
-      },
-    },
-  });
-};
-
-// Render Milestones Chart
-const renderMilestonesChart = (completed: number, pending: number) => {
-  const ctx = document.getElementById('milestonesChart') as HTMLCanvasElement;
+const renderMilestonePieChart = (milestone_submission_stats: any) => {
+  const ctx = document.getElementById('milestonePieChart') as HTMLCanvasElement;
   if (!ctx) return;
 
   new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: ['Completed', 'Pending'],
+      labels: ['On Time', 'Late', 'Early'],
       datasets: [
         {
-          data: [completed, pending],
-          backgroundColor: ['#8E24AA', '#FF7043'],
+          data: milestone_submission_stats,
+          backgroundColor: ['#2196f3', '#f44336', '#4caf50'],
         },
       ],
     },
     options: {
+      responsive: true,
       plugins: {
         legend: { position: 'bottom' },
+        title: {
+        display: true,
+        text: 'Milestone Submission Stats',
+        font: {
+            size: 16,
+            weight: 'bold',
+          },
+      }
       },
     },
   });
 };
 
+const renderMilestoneDensity = (milestone_density: any) => {
+  const ctx = document.getElementById('milestoneDensityChart') as HTMLCanvasElement;
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: milestone_density.map((s: any) => s.date),
+      datasets: [
+        {
+          label: 'Submissions',
+          data: milestone_density.map((s: any) => s.count),
+          borderColor: '#2196f3',
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'End Date',
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Count',
+          },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        title: {
+        display: true,
+        text: 'Milestone Density',
+        font: {
+            size: 16,
+            weight: 'bold',
+          },
+      }
+      },
+    },
+  });
+}
+
 // Call APIs and Render Charts on Mount
 onMounted(() => {
   fetchCompletionRate();
-  fetchProjectsData();
-  fetchStudentsData();
-  fetchMilestonesData();
 });
 </script>
 
@@ -236,19 +208,30 @@ onMounted(() => {
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <h1>Admin Dashboard</h1>
         <div class="row mb-4">
-          <div class="col-md-6">
-            <canvas id="completionRateChart"></canvas>
+          <div class="col-md-3">
+            <StatisticsCard title="Total Projects" :value="total_projects" type="primary"/>
           </div>
-          <div class="col-md-6">
-            <canvas id="projectsChart"></canvas>
+          <div class="col-md-3">
+            <StatisticsCard title="Milestones Due This Week" :value="milestones_due_this_week" type="danger"/>
+          </div>
+          <div class="col-md-3">
+            <StatisticsCard title="Milestones Completed This Week" :value="milestones_completed_this_week" type="success"/>
+          </div>
+          <div class="col-md-3">
+            <StatisticsCard title="Total Students" :value="total_students" type="primary"/>
           </div>
         </div>
         <div class="row mb-4">
-          <div class="col-md-6">
-            <canvas id="studentsChart"></canvas>
+          <div class="col-md-6 d-flex justify-content-center">
+            <canvas id="dailySubmissionChart"></canvas>
           </div>
-          <div class="col-md-6">
-            <canvas id="milestonesChart"></canvas>
+          <div class="col-md-6 d-flex justify-content-center">
+            <canvas id="milestonePieChart"></canvas>
+          </div>
+        </div>
+        <div class="row mb-4">
+          <div class="col-md-12 d-flex justify-content-center">
+            <canvas id="milestoneDensityChart"></canvas>
           </div>
         </div>
       </main>
