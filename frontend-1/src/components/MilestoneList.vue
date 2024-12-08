@@ -101,15 +101,32 @@ export default {
       this.showModal = false;
       this.problemStatement = '';
       this.milestoneCount = 1;
-    },
-    generateMilestones() {
-      this.milestones = [
+    },    
+    async generateMilestones () {
+    // Call the llm API
+    let response = await fetch('http://localhost:5000/milestone', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authentication-Token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+        'description' : this.problemStatement,
+        'numbermilestones': this.milestoneCount
+        }),
+    })
+    let result = await response.json()
+    if (!response.ok) {
+        alert(result.error)
+        return 
+    }
+    this.milestones = [
         { title: 'Project Document', description: this.problemStatement },
       ];
-      for (let i = 1; i <= this.milestoneCount; i++) {
+      for (let i = 0; i < this.milestoneCount; i++) {
         this.milestones.push({
-          title: `Milestone ${i}`,
-          description: `Description of Milestone ${i}.`,
+          title: result.response[0][i],
+          description: result.response[1][i],
         });
       }
       this.closeModal();

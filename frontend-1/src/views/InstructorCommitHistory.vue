@@ -31,7 +31,10 @@
                     <div class="col-md-4">
                         <div class="pt-3 pb-2 mb-3">
                             <h3>Student Name 1</h3>
-                            <button class="approve-button">Approve the document</button>
+                            <form action="http://localhost:5000/upload" method = "post" enctype="multipart/form-data" >
+                                <input type="file" id="document" name="document" accept=".pdf">
+                                <button type="submit">Upload PDF</button>
+                            </form>
                         </div>
                         <div v-for="commit in commits" :key="commit.id" class="mb-3">
                             <div class="d-flex align-items-center">
@@ -48,8 +51,10 @@
                     <div class="col-md-1"></div>
                     <div class="col-md-7">
                         <div class="pt-3 pb-2 mb-3 document-summary-chat">
-                            <div class="document-summary">
+                            <div class="document-summary"> 
+                                <button v-if = 'summary_flag' @click="summary" class="question-ask-send"> Document Sumamry</button>
                                 <p>Document Summary of uploaded document</p>
+                                <span> {{ document_summary }}</span>
                             </div>
                 
                             <div class="chat-section">
@@ -90,6 +95,8 @@
   
   
   <script>
+import { tokenToString } from 'typescript';
+
   export default {
     data() {
       return {
@@ -107,16 +114,57 @@
           { type: "answer", text: "Answer" },
         ],
         newQuestion: "",
+        summary_flag: true,
+        document_summary: "",
       };
     },
     methods: {
-      submitQuestion() {
+    async llm (question) {
+    // Call the llm API
+    let response = await fetch('http://localhost:5000/ask', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authentication-Token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+        'question' : question
+        }),
+    })
+    let result = await response.json()
+    if (!response.ok) {
+        alert(result.error)
+        return
+    }
+       return result.response
+    },
+    async summary () {
+        let response = await fetch('http://localhost:5000/ask', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authentication-Token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+        'question' : 'What is the summary of the document ?'
+        }),
+    })
+    let result = await response.json()
+    if (!response.ok) {
+        alert(result.error)
+        return
+    }
+        this.document_summary = result.response
+        console.log(result.response)
+    },
+      async submitQuestion() {
         if (this.newQuestion.trim()) {
           this.chatMessages.push({ type: "question", text: this.newQuestion });
-          this.chatMessages.push({ type: "answer", text: "Sample Answer" }); // Replace with actual response logic
+          this.chatMessages.push({ type: "answer", text: await this.llm(this.newQuestion) }); // Replace with actual response logic
           this.newQuestion = "";
         }
       },
+      
       circleColor(){
             let ele = document.getElementsByClassName('commit-circle');
             ele[0].style.backgroundColor = '#d88549';
