@@ -8,14 +8,14 @@
         </div>
   
           <!-- Student List -->
-          <div class="list-group">
+          <div v-if="!this.student_loading" class="list-group">
                 <div v-for="student in students" :key="student.id" 
                     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center unclicked" :id="student.id"
                     @click="changeStuff(student.id)">
                     <div>
                         <div style="margin-bottom: 10px;">
                             {{ student.name }}<br>
-                            Students Email: {{ student.email }}
+                            Email: {{ student.email }}
                         </div>
                         <div class="progress">
                             <div class="progress-bar" role="progressbar" :style="'width: '+student.progress+'% !important'" :aria-valuenow="student.progress" aria-valuemin="0" aria-valuemax="100"></div>
@@ -37,28 +37,14 @@
                 <div class="modal fade" id="addStudent" tabindex="-1" role="dialog" aria-labelledby="addStudentLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
-                        <form id="add_student">
+                        <form id="add_student" enctype="multipart/form-data">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addStudentLabel">Add Student</h5>
+                                <h5 class="modal-title" id="addStudentLabel">Add Students</h5>
                             </div>
-                            <div class="modal-body">
-                                <input type="hidden" name="form_id" value="add_student">
-                                <!-- Name input -->
-                                <div data-mdb-input-init class="form-outline mb-4">
-                                    <input type="text" name="title" id="title" class="form-control" v-model="newStudent.name" required maxlength=45/>
-                                    <label class="form-label" for="name">Student Name</label>
-                                </div>
-
-                                <!-- Student Email input -->
-                                <div data-mdb-input-init class="form-outline mb-4">
-                                    <input type="email" id="student_email" name="student_email" class="form-control" v-model="newStudent.email" required maxlength=250/>
-                                    <label class="form-label" for="student_email">Student Email</label>
-                                </div>
-                            
-                            </div>
+                            <input type="file" id="document" name="document" accept=".csv">
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button class="btn btn-success" @click="addStudent" data-bs-dismiss="modal">Add Student</button>
+                                <button class="btn btn-success" type="submit" @click="addStudents" data-bs-dismiss="modal">Upload Document</button>
                             </div>
                         </form>
                     </div>
@@ -91,7 +77,7 @@
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-7" id="statsPanel">
-            <ProgressComponent />
+            <ProgressComponent :student_id="this.student_id" :project_id="this.project_id" />
         </div>
     </div>
   </template>
@@ -100,50 +86,63 @@
 import ProgressComponent from './ProgressComponent.vue';
 
   export default {
+    props: {
+      students: Object,
+      project_id: Number,
+    },
     data() {
       return {
         newStudent: { name: "", email: "" },
-        students: [
-          { id: 1, name: "Student Name 1", email: "student1@example.com", progress: 50 },
-          { id: 2, name: "Student Name 2", email: "student2@gmail.com", progress: 75 },
-          { id: 3, name: "Student Name 3", email: "student3@gmail.com", progress: 25 },
-          {id: 4, name: "Student Name 4", email: "student4@gmail.com", progress: 100},
-          { id: 5, name: "Student Name 5", email: "student5@gmail.com", progress: 10 },
-        ],
+        student_loading: false,
         last_clicked: null,
-        id: null,
-        last_clicked: null,
+        id: -1,
+        student_id: null,
       };
     },
     components: {
       ProgressComponent,
     },
     methods: {
-      addStudent(event) {
-        event.preventDefault();
-        if (this.newStudent.name && this.newStudent.email) {
-            let highest_id = 0;
-            for (let i = 0; i < this.students.length; i++){
-                if (this.students[i].id > highest_id){
-                    highest_id = this.students[i].id;
-                }
+        async addStudents(event){
+            event.preventDefault();
+            let form = document.getElementById('add_student');
+            let formData = new FormData(form);
+            const response = await fetch('http://localhost:5000/students/bulk-upload/' + localStorage.getItem('user_id'), {
+                method: 'POST',
+                headers: {
+                    'Authentication-Token': localStorage.getItem('token'),
+                },
+                body: formData,
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                alert(result.error);
+                return;
             }
-          this.students.push({ ...this.newStudent, id: highest_id+1, progress: Math.floor(Math.random() * 101) });
-          this.newStudent = { name: "", email: "" };
-          this.showAddStudentForm = false;
-        }
+            this.$emit('new-students');
       },
-      deleteStudent(event) {
+      async deleteStudent(event) {
         event.preventDefault();
-        this.students = this.students.filter(student => student.id !== this.id);
-        if(this.last_clicked == this.id && this.students.length > 0){
-            this.changeStuff(this.students[0].id);
+        const response = await fetch('http://localhost:5000/students/' + localStorage.getItem('user_id'), {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authentication-Token': localStorage.getItem('token'),
+          },
+          body: JSON.stringify({ id: this.id }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          alert(result.error);
+          return;
         }
+        this.$emit('new-students');
       },
       changeStuff(id){
-        console.log(id);
+        //console.log(id);
+        this.student_id = id;
         let ele = document.getElementById(id);
-        console.log(ele);
+        //console.log(ele);
         if(this.last_clicked != null){
             let last_ele = document.getElementById(this.last_clicked);
             if(last_ele != null){
@@ -163,6 +162,6 @@ import ProgressComponent from './ProgressComponent.vue';
     if(this.students.length > 0){
         this.changeStuff(this.students[0].id);
     }
-  }
+  },
   };
   </script>

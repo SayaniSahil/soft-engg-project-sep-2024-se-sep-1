@@ -9,7 +9,7 @@ const chart4Data = ref(null);
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/admin/dashboard/statistics/charts', {
+    const response = await fetch('http://127.0.0.1:5000/admin/dashboard/statistics', {
       headers: {
         
         'Content-Type': 'application/json',

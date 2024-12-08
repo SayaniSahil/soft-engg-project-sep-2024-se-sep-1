@@ -28,6 +28,7 @@ const handleLogin = async () => {
   localStorage.setItem('username', result.username)
   localStorage.setItem('role', result.role)
   localStorage.setItem('id', result.email.split('@')[0])
+  localStorage.setItem('user_id', result.id)
   router.push('/' + result.role)
 }
 </script>

@@ -1,14 +1,3 @@
-<script setup lang="ts">
-import StudentList from '../components/StudentList.vue'
-import { useRouter } from 'vue-router';
-
-const router = useRouter()
-const logout = () => {
-  sessionStorage.clear()
-  router.push('/')
-}
-</script>
-
 <template>
   <div class="container-fluid">
     <div class="row">
@@ -39,9 +28,54 @@ const logout = () => {
           <h1>Student List</h1>
         </div>
 
-        <StudentList/>
+        <StudentList v-if="!this.student_loading" :students="this.students" :project_id="this.project_id" @new-students="fetchStudents"/>
 
       </main>
     </div>
   </div>
 </template>
+
+<script>
+import StudentList from '../components/StudentList.vue'
+import { useRouter } from 'vue-router';
+
+export default {
+  name: 'InstructorStudentView',
+  components: {
+    StudentList,
+  },
+  data() {
+    return {
+      student_loading: true,
+      students: [],
+      project_id: 1,
+    };
+  },
+  methods: {
+    async fetchStudents() {
+      this.student_loading = true;
+      const response = await fetch('http://localhost:5000/students/' + localStorage.getItem('user_id'), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authentication-Token': localStorage.getItem('token'),
+        },
+      })
+      const result = await response.json()
+      //console.log(result)
+      if (!response.ok) {
+        alert(result.error)
+        return
+      }
+      this.students = result.students;
+      this.student_loading = false;
+    },
+    logout() {
+      localStorage.clear()
+      this.$router.push('/')
+    },
+  },
+  async created() {
+    await this.fetchStudents();
+  },
+}
+</script>

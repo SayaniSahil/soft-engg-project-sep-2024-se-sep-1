@@ -162,65 +162,72 @@ export default {
       pie_chart: null,
       bar_chart: null,
       instructors: null,
+      students: null,
       last_clicked: null,
     };
   },
   methods: {
     async addProject(event){
         event.preventDefault();
-        // Example of how to make a fetch request
-        // Either use this or the axios library
-        //const response = await fetch('http://localhost:5000/projects', {
-        //    method: 'GET',
-        //    headers: {
-        //        'Content-Type': 'application/json',
-        //        'Authentication-Token': 'eyJ2ZXIiOiI1IiwidWlkIjoiNDE4MjJlYzlhY2JhNDZlYmI2ZjdlZGY4OGEyNjBiY2EiLCJmc19wYWEiOjE3MzE2OTA4MzQuMzkwMDQzLCJleHAiOjB9.ZzeBUg.2kItB8QvuzToB40D5NFanGSzy24'
-        //    }
-        //});
-        const data = await response.json();
-        console.log(data);
+        // Get all details from form, title, description, and instructors
         let form = document.getElementById("add_project");
-        this.title = form.title.value;
-        this.description = form.description.value;
-        this.instructors = form.instructor_email.value;
-        // Comma separated list of emails
-        this.instructors = this.instructors.split(",");
-        if (this.title == '' || this.description == ''){
-            alert("Please fill out all fields");
+        const response = await fetch('http://localhost:5000/projects', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'Authentication-Token': localStorage.getItem('token')
+           },
+           body: JSON.stringify({
+               'title': form.title.value,
+               'description': form.description.value,
+               'instructors': form.instructor_email.value.split(",") // This is a comma separated list of emails, each email must already be registered in the system
+           })
+        });
+        const data = await response.json();
+        //console.log(data);
+        if (!response.ok){
+            alert(data.error);
             return;
         }
-        let highest_id = 0;
-        for (let i = 0; i < this.projects.length; i++){
-            if (this.projects[i].project_id > highest_id){
-                highest_id = this.projects[i].project_id;
-            }
-        }
-        this.project_id = highest_id + 1;
-        this.projects.push({project_id: this.project_id, title: this.title, description: this.description, students: 0, instructors: this.instructors});
+        // We add the project to list, and reset the form
+        this.projects.push({project_id: data.project.project_id, title: data.project.title, description: data.project.description, students: 0, instructors: data.project.instructors, students: 0});
+        //console.log(this.projects);
+        this.project_id = null;
         this.title = null;
         this.description = null;
         this.instructors = null;
-        this.project_id = null;
     },
-    editProject(event){
+    async editProject(event){
         event.preventDefault();
         let form = document.getElementById("edit_project");
-        this.title = form.title.value;
-        this.description = form.description.value;
-        this.instructors = form.instructor_email.value;
-        // Comma separated list of emails
-        this.instructors = this.instructors.split(",");
-        if (this.title == '' || this.description == ''){
-            alert("Please fill out all fields");
+        const response = await fetch('http://localhost:5000/projects/' + this.project_id, {
+           method: 'PUT',
+           headers: {
+               'Content-Type': 'application/json',
+               'Authentication-Token': localStorage.getItem('token')
+           },
+            body: JSON.stringify({
+            'title': form.title.value,
+            'description': form.description.value,
+            'instructors': form.instructor_email.value.split(",") // This is a comma separated list of emails, each email must already be registered in the system
+            })
+        });
+        let result = await response.json();
+        if (!response.ok){
+            alert(result.error);
             return;
         }
+        // Update the project in the list, have to go through all as we need to find the correct project
         for(let i = 0; i < this.projects.length; i++){
-            if(this.projects[i].project_id == this.project_id){
-                this.projects[i].title = this.title;
-                this.projects[i].description = this.description;
-                this.projects[i].instructors = this.instructors;
+            if(this.projects[i].project_id == result.project.project_id){
+                this.projects[i].title = result.project.title;
+                this.projects[i].description = result.project.description;
+                this.projects[i].instructors = result.project.instructors;
+                this.projects[i].students = result.project.students;
+                break;
             }
         }
+        // If the project is currently being displayed, update the display
         let ele = document.getElementById(this.project_id);
         if(ele.classList.contains("clicked")){
             this.changePanel(this.project_id);
@@ -228,28 +235,46 @@ export default {
         this.title = null;
         this.description = null;
         this.instructors = null;
+        this.students = null;
         this.project_id = null;
     },
-    deleteProject(event){
+    async deleteProject(event){
         event.preventDefault();
+        const response = await fetch('http://localhost:5000/projects/' + this.project_id, {
+           method: 'DELETE',
+           headers: {
+               'Content-Type': 'application/json',
+               'Authentication-Token': localStorage.getItem('token')
+           }
+        });
+        let result = await response.json();
+        if (!response.ok){
+            alert(result.error);
+            return;
+        }
+        // Remove the project from the list
         for (let i = 0; i < this.projects.length; i++){
             if (this.projects[i].project_id == this.project_id){
                 this.projects.splice(i, 1);
             }
         }
+        // If the project is the only one, reset the display
         if(this.projects.length == 0){
             this.changePanel(null);
         }
+        // If the project is currently being displayed, update the display
         if(this.last_clicked == this.project_id){
             this.changeStuff(this.projects[0].project_id);
         }
     },
     changePanel(id){
+        // Changes panel based on id, panel is the right side of the screen
         for (let i = 0; i < this.projects.length; i++){
                 if (this.projects[i].project_id == id){
                     this.title = this.projects[i].title;
                     this.description = this.projects[i].description;
                     this.instructors = this.projects[i].instructors;
+                    this.students = this.projects[i].students;
                     this.pie_chart = this.projects[i].pie_chart;
                     this.bar_chart = this.projects[i].bar_chart;
                 }
@@ -257,7 +282,7 @@ export default {
         if (this.showStats){
             let ele = document.getElementById("statsPanel");
             //ele.innerHTML = "<img src='data:image/png;base64,'" + this.pie_chart + " alt='Pie Chart'>" + "<img src='data:image/png;base64,'" + this.bar_chart + " alt='Bar Chart'>";
-            ele.innerHTML = "<img src='" + pieChart + "' alt='Pie Chart'>" + "<img src='" + barChart + "' alt='Bar Chart'>";
+            //ele.innerHTML = "<img src='" + pieChart + "' alt='Pie Chart'>" + "<img src='" + barChart + "' alt='Bar Chart'>";
         } else {
             document.getElementById("projectTitle").innerHTML = this.title;
             document.getElementById("projectDescription").innerHTML = this.description;
@@ -277,6 +302,7 @@ export default {
         this.bar_chart = null;
     },
     changeStuff(id){
+        // Changes the clicked project, changes the panel to the right, and the color of the clicked project
         let ele = document.getElementById(id);
         if(this.last_clicked != null){
             let last_ele = document.getElementById(this.last_clicked);
@@ -291,6 +317,7 @@ export default {
         this.changePanel(id); 
     },
     changeId(id, type){
+        // Changes the id of the project to be edited or deleted, used for making things easier
         this.project_id = id;
         if(type == 0){
             for(let i = 0; i < this.projects.length; i++){
@@ -312,7 +339,7 @@ export default {
     },
   },
   mounted(){
-    console.log(this.projects);
+    //console.log(this.projects);
     if(this.projects.length > 0){
         this.changeStuff(this.projects[0].project_id);
     }else{

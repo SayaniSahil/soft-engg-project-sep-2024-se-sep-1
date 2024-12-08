@@ -45,7 +45,7 @@ class ProjectStudentAssignment(db.Model):
     
     project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'), primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
-    github_url = db.Column(db.String(255))
+    github_url = db.Column(db.String(255), nullable=True)
     assigned_date = db.Column(DateTime, default=datetime.utcnow)
 
 class ProjectInstructorAssignment(db.Model):

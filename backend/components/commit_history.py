@@ -15,9 +15,9 @@ GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 # Helper function to fetch commit history from GitHub
 def fetch_commit_history(github_url):
-    if not GITHUB_TOKEN:
-        print("Error: GitHub token is not set in the environment variables.")
-        return None
+    # if not GITHUB_TOKEN:
+    #     print("Error: GitHub token is not set in the environment variables.")
+    #     return None
 
     headers = {'Authorization': f'token {GITHUB_TOKEN}'}
 
@@ -56,15 +56,6 @@ def fetch_commit_history(github_url):
         print(f"Error fetching commit history: {response.text}")
         return None
 
-# Helper function to get the current user's project ID
-def get_project_id_for_student(student_id):
-    assignment = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
-    if not assignment:
-        print(f"Error: No project assigned to Student ID: {student_id}")
-        return None
-    return {"project_id": assignment.project_id, "github_url": assignment.github_url}
-
-
 # API to get commit history for the current student
 @commit_history_bp.route('/commit_history/<int:student_id>', methods=['GET'])
 @auth_required('token')  # Ensures the user is authenticated
@@ -73,12 +64,10 @@ def get_commit_history(student_id):
         print(f"Fetching project for Student ID: {student_id}")
 
         # Fetch project ID and GitHub URL for the given student_id
-        project_data = get_project_id_for_student(student_id)
-        if not project_data:
-            return jsonify({"error": "No project or GitHub URL found for this student"}), 404
+        project = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
 
-        project_id = project_data["project_id"]
-        github_url = project_data["github_url"]
+        project_id = project["project_id"]
+        github_url = project["github_url"]
 
         if not github_url:
             print(f"No GitHub URL found for Student ID: {student_id}")
@@ -100,6 +89,27 @@ def get_commit_history(student_id):
             "commit_history": commit_history
         }), 200
 
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+
+@commit_history_bp.route('/commit_history/<int:student_id>', methods=['POST'])
+@auth_required('token')
+def uploadURL(student_id):
+    try:
+        print(f"Fetching project for Student ID: {student_id}")
+
+        # Fetch project ID and GitHub URL for the given student_id
+        project = ProjectStudentAssignment.query.filter_by(student_id=student_id).first()
+        if not project:
+            return jsonify({"error": "Project not found"}), 404
+        
+        if not request.json or 'url' not in request.json:
+            return jsonify({"error": "GitHub URL is missing in the request body"}), 400
+        project.github_url = request.json['url']
+        db.session.commit()
+        return jsonify({"message": "GitHub URL updated successfully"}), 200
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500

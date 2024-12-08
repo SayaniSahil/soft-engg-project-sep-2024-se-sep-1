@@ -15,7 +15,7 @@ def check_user(email, password):
     match = bcrypt.check_password_hash(user.password, password)
     if not match: return jsonify({"message": "Email or Password incorrect"}), 400
     # If everything is correct, return authentication token
-    return {"token": user.get_auth_token(), "username": user.username, "email": user.email, "role": str(user.roles[0].name)}, 200
+    return {"token": user.get_auth_token(), "username": user.username, "email": user.email, "role": str(user.roles[0].name), "id": user.user_id}, 200
 
 @auth_bp.route('/login_user', methods=['POST'])
 def login():

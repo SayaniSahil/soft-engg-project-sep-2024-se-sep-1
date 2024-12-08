@@ -24,7 +24,7 @@
         <div class="pt-3 pb-2 mb-3 border-bottom">
           <h1>Project Details</h1>
         </div>
-        <ProjectList :projects="this.projects" :showStats="false"/>
+        <ProjectList v-if="!this.project_loading" :projects="this.projects" :showStats="false"/>
       </main>
     </div>
   </div>
@@ -45,30 +45,38 @@
         data(){
             return {
                 projects: null,
+                project_loading: true
             };
         },
         methods: {
             async getProjects(){
                 // Fetch projects from backend
-                this.projects = [
-                { project_id: 1, title: 'Project 1', description: "This is Project 1", students: 13, instructors: ["instructor1@gmail.com", "instructor2@gmail.com"] },
-                { project_id: 2, title: 'Project 2', description: "This is Project 2", students: 34, instructors: ["instructor3@gmail.com", "instructor4@gmail.com"] },
-                { project_id: 3, title: 'Project 3', description: "This is Project 3", students: 12, instructors: ["instructor5@gmail.com", "instructor6@gmail.com"] },
-                { project_id: 4, title: 'Project 4', description: "This is Project 4", students: 45, instructors: ["instructor7@gmail.com", "instructor8@gmail.com"] },
-                { project_id: 5, title: 'Project 5', description: "This is Project 5", students: 23, instructors: ["instructor9@gmail.com", "instructor10@gmail.com"] },
-                ];
-            },
-            async initializePage(){
-                await this.getProjects();
+                this.projects = [];
+                this.project_loading = true;
+                const response = await fetch('http://localhost:5000/projects', {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authentication-Token': localStorage.getItem('token')
+                    }
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    alert(result.error);
+                    return;
+                }
+                this.projects = result.projects;
+                //console.log(this.projects);
+                this.project_loading = false;
             },
             async logout(event){
                 event.preventDefault();
-                sessionStorage.clear();
+                localStorage.clear();
                 this.$router.push('/');
             }
         },
         async created(){
-            this.getProjects();
+            await this.getProjects();
         }
     }
 </script>

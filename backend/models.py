@@ -31,18 +31,6 @@ class User(db.Model, UserMixin):
     
     roles = relationship('Role', secondary=roles_users,
                         backref=backref('users', lazy='dynamic'))
-    
-
-class Student(db.Model):
-    __tablename__ = 'students'
-    
-    student_id = db.Column(db.String(20), primary_key=True)
-    user_id = db.Column(db.String(20), db.ForeignKey('users.user_id'), nullable=False)
-    department = db.Column(db.String(100))
-    batch = db.Column(db.String(20))
-    
-    user = relationship('User', backref=backref('student', uselist=False))
-
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -57,7 +45,7 @@ class ProjectStudentAssignment(db.Model):
     
     project_id = db.Column(db.String(20), db.ForeignKey('projects.project_id'), primary_key=True)
     student_id = db.Column(db.String(20), db.ForeignKey('students.student_id'), primary_key=True)
-    github_url = db.Column(db.String(255))
+    github_url = db.Column(db.String(255), nullable=True)
     assigned_date = db.Column(DateTime, default=datetime.utcnow)
 
 class ProjectInstructorAssignment(db.Model):
