@@ -126,9 +126,6 @@ body {
 */
 
 /* Adjust sidebar top position to account for both navbars */
-.sidebar {
-  padding-top: 65px !important;
-}
 
 .unclicked{
   background-color: #d4ebe8 !important;
@@ -150,6 +147,8 @@ body {
 }
 
 .sidebar {
+  padding-top: 65px !important;
+  overflow-y: auto; /* Allow scrolling if the sidebar is too long */
   position: fixed;
   top: 0;
   bottom: 0;
