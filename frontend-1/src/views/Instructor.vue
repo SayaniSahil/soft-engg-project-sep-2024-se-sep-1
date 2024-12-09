@@ -15,7 +15,7 @@
                         <router-link class="nav-link" to="/instructor/students" active-class="active-link">Students</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/instructor/github" active-class="active-link">Github History</router-link>
+                        <router-link class="nav-link" to="/instructor/insights" active-class="active-link">Document Insight</router-link>
                     </li>
                     <!-- Dropdown List -->
                     <li v-if="!loading" class="nav-item dropdown">
@@ -37,8 +37,8 @@
             <div v-if="this.type=='dashboard'">
                 <InstructorDashboard :project_id="this.project_id" :key="this.project_id"/>
             </div>
-            <div v-else-if="this.type=='github'">
-                <InstructorCommitHistory :project_id="this.project_id" :key="this.project_id"/>
+            <div v-else-if="this.type=='insights'">
+                <InstructorDocumentInsight :project_id="this.project_id" :key="this.project_id"/>
             </div>
             <div v-else-if="this.type=='milestones'">
                 <InstructorMilestoneView :project_id="this.project_id" :key="this.project_id"/>
@@ -52,7 +52,7 @@
 
 <script>
 import InstructorDashboard from '../components/InstructorDashboard.vue'
-import InstructorCommitHistory from '../components/InstructorCommitHistory.vue'
+import InstructorDocumentInsight from '../components/InstructorDocumentInsight.vue'
 import InstructorMilestoneView from '../components/InstructorMilestoneView.vue'
 import InstructorStudentView from '../components/InstructorStudentView.vue'
 import { ref } from 'vue'
@@ -61,7 +61,7 @@ export default{
     name: 'Instructor',
     components: {
         InstructorDashboard,
-        InstructorCommitHistory,
+        InstructorDocumentInsight,
         InstructorMilestoneView,
         InstructorStudentView
     },

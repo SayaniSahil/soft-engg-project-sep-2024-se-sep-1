@@ -2,7 +2,7 @@
     <!-- Main Content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="pt-3 pb-2 mb-3 border-bottom">
-            <h1>Github Commit History</h1>
+            <h1>Document Insights</h1>
         </div>
         <div class="row mb-4">
             <div class="col-md-6">
