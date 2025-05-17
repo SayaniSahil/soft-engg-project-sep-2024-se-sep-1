@@ -25,7 +25,7 @@ ALLOWED_EXTENSIONS = {'pdf'}
 load_dotenv("./.env")  # Load .env file
 
 HF_TOKEN = os.getenv("HF_TOKEN")
-HUGGINGFACEHUB_API_TOKEN = "REMOVED"
+HUGGINGFACEHUB_API_TOKEN = ""
 print(HUGGINGFACEHUB_API_TOKEN, HF_TOKEN)
 
 repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
